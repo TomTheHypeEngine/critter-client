@@ -8,6 +8,7 @@ export class Signup {
   lastName = 'Simpson';
   email = 'marge@simpson.com';
   password = 'secret';
+  repeatPassword = 'secret';
 
   constructor(ts) {
     this.tweetService = ts;
@@ -15,7 +16,9 @@ export class Signup {
 
   register(e) {
     this.showSignup = false;
-    this.tweetService.register(this.firstName, this.lastName, this.email, this.password);
-    this.tweetService.login(this.email, this.password);
+    if (this.password === this.repeatPassword) {
+      this.tweetService.register(this.firstName, this.lastName, this.email, this.password);
+      this.tweetService.login(this.email, this.password);
+    }
   }
 }
