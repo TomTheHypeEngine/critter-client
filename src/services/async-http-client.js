@@ -18,7 +18,6 @@ export default class AsyncHttpClient {
   authenticate(url, user) {
     this.http.post(url, user).then(response => {
       const status = response.content;
-      console.log('Status: ' + status);
       if (status.success) {
         localStorage.tweet = JSON.stringify(response.content);
         this.http.configure(configuration => {

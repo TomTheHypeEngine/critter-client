@@ -12,8 +12,7 @@ export class App {
     ea.subscribe(LoginStatus, msg => {
       if (msg.status.success === true) {
         au.setRoot('home').then(() => {
-          // this.router.navigateToRoute('dashboard');
-          this.router.navigateToRoute('login');
+          this.router.navigateToRoute('dashboard');
         });
       } else {
         au.setRoot('app').then(() => {
@@ -38,7 +37,7 @@ export class App {
 
   attached() {
     if (this.ts.isAuthenticated()) {
-      this.au.setRoot('home').then(() => {
+      this.au.setRoot('dashboard').then(() => {
         this.router.navigateToRoute('dashboard');
       });
     }
