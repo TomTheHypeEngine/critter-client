@@ -1,3 +1,7 @@
 <template>
-  <h1>${message}</h1>
+  <require from="nav-bar.html"></require>
+  <div class="ui container page-host">
+    <nav-bar router.bind="router"></nav-bar>
+    <router-view></router-view>
+  </div>
 </template>
