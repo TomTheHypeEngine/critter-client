@@ -41,18 +41,15 @@ define('app',['exports', 'aurelia-framework', 'aurelia-event-aggregator', './ser
           });
         }
       });
-
-      ea.subscribe(_messages.ChangeRouteAfterLogout, function (msg) {
-        _this.router.navigateToRoute('login');
-      });
     }
 
     App.prototype.configureRouter = function configureRouter(config, router) {
-      config.map([{ route: ['login', ''], name: 'login', moduleId: 'viewmodels/login/login', nav: true, title: 'Login' }, { route: 'signup', name: 'signup', moduleId: 'viewmodels/signup/signup', nav: true, title: 'Signup' }]);
+      config.map([{ route: ['login', ''], name: 'login', moduleId: 'viewmodels/login/login', nav: true, title: 'Login' }, { route: 'logout', redirect: 'login' }, { route: 'signup', name: 'signup', moduleId: 'viewmodels/signup/signup', nav: true, title: 'Signup' }]);
 
       config.mapUnknownRoutes(function (instruction) {
         return 'login';
       });
+      config.fallbackRoute('login');
 
       this.router = router;
     };
@@ -110,6 +107,8 @@ define('home',['exports', 'aurelia-framework'], function (exports, _aureliaFrame
       config.mapUnknownRoutes(function (instruction) {
         return 'dashboard';
       });
+
+      config.fallbackRoute('dashboard');
 
       this.router = router;
     };
@@ -667,8 +666,8 @@ define('viewmodels/tweet/tweet',['exports', 'aurelia-framework', '../../services
     Login.prototype.makeTweet = function makeTweet() {
       if (this.tweetText !== '') {
         console.log('Trying to tweet: ' + this.tweetText);
-        this.tweetText = '';
         this.tweetService.tweet(this.tweetText);
+        this.tweetText = '';
       } else {}
     };
 
@@ -678,8 +677,8 @@ define('viewmodels/tweet/tweet',['exports', 'aurelia-framework', '../../services
 define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"nav-bar.html\"></require>\n  <div class=\"ui container page-host\">\n    <nav-bar router.bind=\"router\"></nav-bar>\n    <router-view></router-view>\n  </div>\n</template>\n"; });
 define('text!home.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"nav-bar.html\"></require>\n  <div class=\"ui container page-host\">\n    <nav-bar router.bind=\"router\"></nav-bar>\n    <router-view></router-view>\n  </div>\n</template>\n"; });
 define('text!nav-bar.html', ['module'], function(module) { module.exports = "<template bindable=\"router\">\n  <nav class=\"ui inverted menu\">\n    <header class=\"header item\"><a href=\"\"> Critter - a Twitter clone </a></header>\n    <div class=\"right menu\">\n      <div repeat.for=\"row of router.navigation\">\n        <a class=\"${row.isActive ? 'active' : ''} item\"  href.bind=\"row.href\">${row.title}</a>\n      </div>\n    </div>\n  </nav>\n</template>\n"; });
-define('text!viewmodels/global_timeline/global_timeline.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"ui segment\">\n    <div class=\"ui raised very padded text container segment\" repeat.for=\"tweet of tweets\">\n      <h2 class=\"ui header\">${tweet.tweeter.firstName} ${tweet.tweeter.lastName}</h2>\n      <p>${tweet.content}</p>\n    </div>\n  </div>\n</template>\n"; });
 define('text!viewmodels/dashboard/dashboard.html', ['module'], function(module) { module.exports = "<template>\n  <article class=\"ui stacked segment\">\n    <h3 class=\"ui dividing header\">Welcome to Critter</h3>\n\n    <h4 class=\"ui dividing header\"> User list </h4>\n    <table class=\"ui celled table segment\">\n      <thead>\n        <tr>\n          <th>First name</th>\n          <th>Last name</th>\n          <th>email</th>\n        </tr>\n      </thead>\n      <tbody>\n        <tr repeat.for=\"user of users\">\n          <td> ${user.firstName}</td>\n          <td> ${user.lastName}</td>\n          <td> ${user.email}</td>\n        </tr>\n      </tbody>\n    </table>\n  </article>\n</template>\n"; });
+define('text!viewmodels/global_timeline/global_timeline.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"ui segment\">\n    <div class=\"ui raised very padded text container segment\" repeat.for=\"tweet of tweets\">\n      <h2 class=\"ui header\">${tweet.tweeter.firstName} ${tweet.tweeter.lastName}</h2>\n      <p>${tweet.content}</p>\n    </div>\n  </div>\n</template>\n"; });
 define('text!viewmodels/login/login.html', ['module'], function(module) { module.exports = "<template>\n\n  <form submit.delegate=\"login($event)\" class=\"ui stacked segment form\">\n    <h3 class=\"ui header\">Log-in</h3>\n    <div class=\"field\">\n      <label>Email</label> <input placeholder=\"Email\" value.bind=\"email\"/>\n    </div>\n    <div class=\"field\">\n      <label>Password</label> <input type=\"password\" value.bind=\"password\"/>\n    </div>\n    <button class=\"ui blue submit button\">Login</button>\n    <h3>${prompt}</h3>\n  </form>\n\n</template>\n"; });
 define('text!viewmodels/logout/logout.html', ['module'], function(module) { module.exports = "<template>\n\n  <form submit.delegate=\"logout($event)\" class=\"ui stacked segment form\">\n    <h3 class=\"ui header\">Are you sure you want to log out?</h3>\n    <button class=\"ui blue submit button\">Logout</button>\n  </form>\n\n</template>\n"; });
 define('text!viewmodels/signup/signup.html', ['module'], function(module) { module.exports = "<template>\n  <form submit.delegate=\"register($event)\" class=\"ui stacked segment form\">\n    <h3 class=\"ui header\">Register</h3>\n    <div class=\"two fields\">\n      <div class=\"field\">\n        <label>First Name</label>\n        <input placeholder=\"First Name\" type=\"text\" value.bind=\"firstName\">\n      </div>\n      <div class=\"field\">\n        <label>Last Name</label>\n        <input placeholder=\"Last Name\" type=\"text\" value.bind=\"lastName\">\n      </div>\n    </div>\n    <div class=\"field\">\n      <label>Email</label>\n      <input placeholder=\"Email\" type=\"text\" value.bind=\"email\">\n    </div>\n    <div class=\"two fields\">\n      <div class=\"field\">\n        <label>Password</label>\n        <input type=\"password\" value.bind=\"password\">\n      </div>\n      <div class=\"field\">\n        <label>Repeat Password</label>\n        <input type=\"password\" value.bind=\"repeatPassword\">\n      </div>\n    </div>\n    <button class=\"ui blue submit button\">Submit</button>\n  </form>\n</template>\n"; });
