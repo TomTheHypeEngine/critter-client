@@ -15,3 +15,9 @@ export class UserUpdate {
     this.users = users;
   }
 }
+
+export class ChangeRouteAfterLogout {
+  constructor(route) {
+    this.route = route;
+  }
+}

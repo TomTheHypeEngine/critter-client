@@ -1,6 +1,6 @@
 import {inject, Aurelia} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {LoginStatus} from './services/messages';
+import {LoginStatus, ChangeRouteAfterLogout} from './services/messages';
 import TweetService from './services/tweet-service';
 
 @inject(TweetService, Aurelia, EventAggregator)
@@ -19,6 +19,11 @@ export class App {
           this.router.navigateToRoute('login');
         });
       }
+    });
+    //Because of some weird behaviour on Firefox we need to navigate like this
+    //Otherwise Firefox would stay on Logout view after logout was clicked
+    ea.subscribe(ChangeRouteAfterLogout, msg => {
+      this.router.navigateToRoute('login');
     });
   }
 
