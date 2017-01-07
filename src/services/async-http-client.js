@@ -47,7 +47,7 @@ export default class AsyncHttpClient {
       authenticated = true;
       this.http.configure(http => {
         const auth = JSON.parse(localStorage.tweet);
-        http.withHeader('Authorization', 'bearer ' + auth.token);
+        http.withHeader('Authorization', auth.token);
       });
     }
     return authenticated;
