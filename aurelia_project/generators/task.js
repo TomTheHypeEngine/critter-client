@@ -17,7 +17,7 @@ export default class TaskGenerator {
         let functionName = this.project.makeFunctionName(name);
 
         this.project.tasks.add(
-          ProjectItem.text(`${fileName}.js`, this.generateSource(functionName))
+          ProjectItem.tweetText(`${fileName}.js`, this.generateSource(functionName))
         );
 
         return this.project.commitChanges()

@@ -17,7 +17,7 @@ export default class GeneratorGenerator {
         let className = this.project.makeClassName(name);
 
         this.project.generators.add(
-          ProjectItem.text(`${fileName}.js`, this.generateSource(className))
+          ProjectItem.tweetText(`${fileName}.js`, this.generateSource(className))
         );
 
         return this.project.commitChanges()

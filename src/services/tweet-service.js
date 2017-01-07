@@ -30,8 +30,7 @@ export default class TweetService {
     this.ac.post('/api/tweets', tweet).then(res => {
       const returnedTweets = res.content;
       this.tweets.push(returnedTweets);
-      console.log(amount + ' donated to ' + candidate.firstName + ' ' + candidate.lastName + ': ' + method);
-      console.log('Tweet created with text ' + content);
+      console.log('Tweet created with tweetText ' + content);
       this.ea.publish(new TimelineUpdate(this.tweets));
     });
   }
