@@ -20,22 +20,19 @@ export class App {
         });
       }
     });
-    //Because of some weird behaviour on Firefox we need to navigate like this
-    //Otherwise Firefox would stay on Logout view after logout was clicked
-    ea.subscribe(ChangeRouteAfterLogout, msg => {
-      this.router.navigateToRoute('login');
-    });
   }
 
   configureRouter(config, router) {
     config.map([
       { route: ['login', ''], name: 'login', moduleId: 'viewmodels/login/login', nav: true, title: 'Login' },
+      { route: 'logout', redirect: 'login' },
       { route: 'signup', name: 'signup', moduleId: 'viewmodels/signup/signup', nav: true, title: 'Signup' }
     ]);
 
     config.mapUnknownRoutes(instruction => {
       return 'login';
     });
+    config.fallbackRoute('login');
 
     this.router = router;
   }

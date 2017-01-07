@@ -11,7 +11,12 @@ export class Login {
   }
 
   makeTweet() {
-    console.log('Trying to tweet: ' + this.tweetText);
-    this.tweetService.tweet(this.tweetText);
+    if (this.tweetText !== '') {
+      console.log('Trying to tweet: ' + this.tweetText);
+      this.tweetService.tweet(this.tweetText);
+      this.tweetText = '';
+    } else {
+      //TODO notify error that empty tweet is not allowed
+    }
   }
 }

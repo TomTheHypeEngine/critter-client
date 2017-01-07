@@ -19,6 +19,8 @@ export class Home {
       return 'dashboard';
     });
 
+    config.fallbackRoute('dashboard');
+
     this.router = router;
   }
 }
