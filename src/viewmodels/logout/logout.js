@@ -1,16 +1,19 @@
 import TweetService from '../../services/tweet-service';
 import {inject} from 'aurelia-framework';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {ChangeRouteAfterLogout} from '../../services/messages'
 
-@inject(TweetService)
+@inject(TweetService, EventAggregator)
 export class Logout {
 
-  constructor(tweetService) {
+  constructor(tweetService, ea) {
     this.tweetService = tweetService;
+    this.ea = ea;
   }
 
   logout() {
-    console.log('logging out');
     this.tweetService.logout();
+    this.ea.publish(new ChangeRouteAfterLogout('login'));
   }
 }
 
