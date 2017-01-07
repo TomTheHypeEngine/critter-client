@@ -26,6 +26,7 @@ export default class TweetService {
   getTweets() {
     this.ac.get('/api/tweets').then(res => {
       this.tweets = res.content;
+      this.tweets = this.tweets.reverse(); //Reverse tweets to show latest tweet first
       this.ea.publish(new TimelineUpdate(this.tweets));
     });
   }
