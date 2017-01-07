@@ -1,7 +1,12 @@
-export class Dashboard {
-  user = ''
+import {inject} from 'aurelia-framework';
+import TweetService from '../../services/tweet-service';
 
-  constructor() {
-    this.user = 'Your name here';
+@inject(TweetService)
+export class Dashboard {
+  users = [];
+
+  constructor(ts) {
+    this.ts = ts;
+    this.users = this.ts.users;
   }
 }

@@ -57,6 +57,7 @@ export default class TweetService {
       password: password
     };
     this.ac.authenticate('/api/users/authenticate', user);
+    this.users = this.getUsers();
   }
 
   logout() {

@@ -1,5 +1,23 @@
 <template>
   <article class="ui stacked segment">
     <h3 class="ui dividing header">Welcome to Critter</h3>
+
+    <h4 class="ui dividing header"> User list </h4>
+    <table class="ui celled table segment">
+      <thead>
+        <tr>
+          <th>First name</th>
+          <th>Last name</th>
+          <th>email</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr repeat.for="user of users">
+          <td> ${user.firstName}</td>
+          <td> ${user.lastName}</td>
+          <td> ${user.email}</td>
+        </tr>
+      </tbody>
+    </table>
   </article>
 </template>
