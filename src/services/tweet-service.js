@@ -1,6 +1,6 @@
 import {inject} from 'aurelia-framework';
 import Fixtures from './fixtures';
-import {LoginStatus} from './messages';
+import {LoginStatus, UserUpdate, TimelineUpdate} from './messages';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import AsyncHttpClient from './async-http-client';
 
@@ -19,6 +19,7 @@ export default class TweetService {
   getUsers() {
     this.ac.get('/api/users').then(res => {
       this.users = res.content;
+      this.ea.publish(new UserUpdate(this.users));
     });
   }
 
@@ -46,9 +47,7 @@ export default class TweetService {
       email: email,
       password: password
     };
-    this.ac.post('/api/users', newUser).then(res => {
-      this.getUsers();
-    });
+    this.ac.post('/api/users', newUser);
   }
 
   login(email, password) {
@@ -57,13 +56,12 @@ export default class TweetService {
       password: password
     };
     this.ac.authenticate('/api/users/authenticate', user);
-    this.users = this.getUsers();
   }
 
   logout() {
     const status = {
       success: false,
-      message: ''
+      message: 'Logging out'
     };
     this.ac.clearAuthentication();
     this.ea.publish(new LoginStatus(new LoginStatus(status)));

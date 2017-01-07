@@ -9,3 +9,9 @@ export class TimelineUpdate {
     this.tweets = tweets;
   }
 }
+
+export class UserUpdate {
+  constructor(users) {
+    this.users = users;
+  }
+}

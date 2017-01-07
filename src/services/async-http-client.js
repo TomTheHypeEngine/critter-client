@@ -16,8 +16,12 @@ export default class AsyncHttpClient {
   }
 
   authenticate(url, user) {
+    let status = {
+      success: false,
+      message: 'err while authenticating'
+    };
     this.http.post(url, user).then(response => {
-      const status = response.content;
+      status = response.content;
       if (status.success) {
         localStorage.tweet = JSON.stringify(response.content);
         this.http.configure(configuration => {
@@ -26,12 +30,13 @@ export default class AsyncHttpClient {
       }
       this.ea.publish(new LoginStatus(status));
     }).catch(error => {
-      const status = {
+      status = {
         success: false,
         message: 'service not available'
       };
       this.ea.publish(new LoginStatus(status));
     });
+    return status;
   }
 
   clearAuthentication() {
@@ -43,7 +48,8 @@ export default class AsyncHttpClient {
 
   isAuthenticated() {
     let authenticated = false;
-    if (localStorage.tweet !== 'null') {
+    //TODO Check for expiration of token hereW
+    if (localStorage.tweet && localStorage.tweet !== 'null') {
       authenticated = true;
       this.http.configure(http => {
         const auth = JSON.parse(localStorage.tweet);

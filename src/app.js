@@ -24,7 +24,7 @@ export class App {
 
   configureRouter(config, router) {
     config.map([
-      { route: ['', 'login'], name: 'login', moduleId: 'viewmodels/login/login', nav: true, title: 'Login' },
+      { route: ['login', ''], name: 'login', moduleId: 'viewmodels/login/login', nav: true, title: 'Login' },
       { route: 'signup', name: 'signup', moduleId: 'viewmodels/signup/signup', nav: true, title: 'Signup' }
     ]);
 
@@ -37,7 +37,7 @@ export class App {
 
   attached() {
     if (this.ts.isAuthenticated()) {
-      this.au.setRoot('dashboard').then(() => {
+      this.au.setRoot('home').then(res => {
         this.router.navigateToRoute('dashboard');
       });
     }
