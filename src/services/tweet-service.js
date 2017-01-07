@@ -47,9 +47,7 @@ export default class TweetService {
       email: email,
       password: password
     };
-    this.ac.post('/api/users', newUser).then(res => {
-      this.getUsers();
-    });
+    this.ac.post('/api/users', newUser);
   }
 
   login(email, password) {

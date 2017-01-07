@@ -48,7 +48,8 @@ export default class AsyncHttpClient {
 
   isAuthenticated() {
     let authenticated = false;
-    if (localStorage.tweet !== 'null') {
+    //TODO Check for expiration of token hereW
+    if (localStorage.tweet && localStorage.tweet !== 'null') {
       authenticated = true;
       this.http.configure(http => {
         const auth = JSON.parse(localStorage.tweet);
