@@ -44,7 +44,7 @@ define('app',['exports', 'aurelia-framework', 'aurelia-event-aggregator', './ser
     }
 
     App.prototype.configureRouter = function configureRouter(config, router) {
-      config.map([{ route: ['', 'login'], name: 'login', moduleId: 'viewmodels/login/login', nav: true, title: 'Login' }, { route: 'signup', name: 'signup', moduleId: 'viewmodels/signup/signup', nav: true, title: 'Signup' }]);
+      config.map([{ route: ['login', ''], name: 'login', moduleId: 'viewmodels/login/login', nav: true, title: 'Login' }, { route: 'signup', name: 'signup', moduleId: 'viewmodels/signup/signup', nav: true, title: 'Signup' }]);
 
       config.mapUnknownRoutes(function (instruction) {
         return 'login';
@@ -57,7 +57,7 @@ define('app',['exports', 'aurelia-framework', 'aurelia-event-aggregator', './ser
       var _this2 = this;
 
       if (this.ts.isAuthenticated()) {
-        this.au.setRoot('dashboard').then(function () {
+        this.au.setRoot('home').then(function (res) {
           _this2.router.navigateToRoute('dashboard');
         });
       }
@@ -101,7 +101,7 @@ define('home',['exports', 'aurelia-framework'], function (exports, _aureliaFrame
     }
 
     Home.prototype.configureRouter = function configureRouter(config, router) {
-      config.map([{ route: ['', 'dashboard'], name: 'Dashboard', moduleId: 'viewmodels/dashboard/dashboard', nav: true, title: 'Dashboard' }, { route: 'logout', name: 'logout', moduleId: 'viewmodels/logout/logout', nav: true, title: 'Logout' }]);
+      config.map([{ route: ['dashboard', ''], name: 'dashboard', moduleId: 'viewmodels/dashboard/dashboard', nav: true, title: 'Dashboard' }, { route: 'tweet', name: 'tweet', moduleId: 'viewmodels/tweet/tweet', nav: true, title: 'Create Tweet' }, { route: 'logout', name: 'logout', moduleId: 'viewmodels/logout/logout', nav: true, title: 'Logout' }]);
 
       config.mapUnknownRoutes(function (instruction) {
         return 'dashboard';
@@ -198,8 +198,12 @@ define('services/async-http-client',['exports', 'aurelia-framework', 'aurelia-ht
     AsyncHttpClient.prototype.authenticate = function authenticate(url, user) {
       var _this = this;
 
+      var status = {
+        success: false,
+        message: 'err while authenticating'
+      };
       this.http.post(url, user).then(function (response) {
-        var status = response.content;
+        status = response.content;
         if (status.success) {
           localStorage.tweet = JSON.stringify(response.content);
           _this.http.configure(function (configuration) {
@@ -208,12 +212,13 @@ define('services/async-http-client',['exports', 'aurelia-framework', 'aurelia-ht
         }
         _this.ea.publish(new _messages.LoginStatus(status));
       }).catch(function (error) {
-        var status = {
+        status = {
           success: false,
           message: 'service not available'
         };
         _this.ea.publish(new _messages.LoginStatus(status));
       });
+      return status;
     };
 
     AsyncHttpClient.prototype.clearAuthentication = function clearAuthentication() {
@@ -225,7 +230,8 @@ define('services/async-http-client',['exports', 'aurelia-framework', 'aurelia-ht
 
     AsyncHttpClient.prototype.isAuthenticated = function isAuthenticated() {
       var authenticated = false;
-      if (localStorage.tweet !== 'null') {
+
+      if (localStorage.tweet && localStorage.tweet !== 'null') {
         authenticated = true;
         this.http.configure(function (http) {
           var auth = JSON.parse(localStorage.tweet);
@@ -296,6 +302,12 @@ define('services/messages',["exports"], function (exports) {
 
     this.tweets = tweets;
   };
+
+  var UserUpdate = exports.UserUpdate = function UserUpdate(users) {
+    _classCallCheck(this, UserUpdate);
+
+    this.users = users;
+  };
 });
 define('services/tweet-service',['exports', 'aurelia-framework', './fixtures', './messages', 'aurelia-event-aggregator', './async-http-client'], function (exports, _aureliaFramework, _fixtures, _messages, _aureliaEventAggregator, _asyncHttpClient) {
   'use strict';
@@ -339,6 +351,7 @@ define('services/tweet-service',['exports', 'aurelia-framework', './fixtures', '
 
       this.ac.get('/api/users').then(function (res) {
         _this.users = res.content;
+        _this.ea.publish(new _messages.UserUpdate(_this.users));
       });
     };
 
@@ -353,7 +366,7 @@ define('services/tweet-service',['exports', 'aurelia-framework', './fixtures', '
         _this2.tweets.push(returnedTweets);
         console.log(amount + ' donated to ' + candidate.firstName + ' ' + candidate.lastName + ': ' + method);
         console.log('Tweet created with text ' + content);
-        _this2.ea.publish(new TimelineUpdate(_this2.tweets));
+        _this2.ea.publish(new _messages.TimelineUpdate(_this2.tweets));
       });
     };
 
@@ -362,17 +375,13 @@ define('services/tweet-service',['exports', 'aurelia-framework', './fixtures', '
     };
 
     TweetService.prototype.register = function register(firstName, lastName, email, password) {
-      var _this3 = this;
-
       var newUser = {
         firstName: firstName,
         lastName: lastName,
         email: email,
         password: password
       };
-      this.ac.post('/api/users', newUser).then(function (res) {
-        _this3.getUsers();
-      });
+      this.ac.post('/api/users', newUser);
     };
 
     TweetService.prototype.login = function login(email, password) {
@@ -381,13 +390,12 @@ define('services/tweet-service',['exports', 'aurelia-framework', './fixtures', '
         password: password
       };
       this.ac.authenticate('/api/users/authenticate', user);
-      this.users = this.getUsers();
     };
 
     TweetService.prototype.logout = function logout() {
       var status = {
         success: false,
-        message: ''
+        message: 'Logging out'
       };
       this.ac.clearAuthentication();
       this.ea.publish(new _messages.LoginStatus(new _messages.LoginStatus(status)));
@@ -397,7 +405,7 @@ define('services/tweet-service',['exports', 'aurelia-framework', './fixtures', '
   }()) || _class);
   exports.default = TweetService;
 });
-define('viewmodels/dashboard/dashboard',['exports', 'aurelia-framework', '../../services/tweet-service'], function (exports, _aureliaFramework, _tweetService) {
+define('viewmodels/dashboard/dashboard',['exports', 'aurelia-framework', '../../services/tweet-service', 'aurelia-event-aggregator', '../../services/messages'], function (exports, _aureliaFramework, _tweetService, _aureliaEventAggregator, _messages) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -421,13 +429,18 @@ define('viewmodels/dashboard/dashboard',['exports', 'aurelia-framework', '../../
 
   var _dec, _class;
 
-  var Dashboard = exports.Dashboard = (_dec = (0, _aureliaFramework.inject)(_tweetService2.default), _dec(_class = function Dashboard(ts) {
+  var Dashboard = exports.Dashboard = (_dec = (0, _aureliaFramework.inject)(_tweetService2.default, _aureliaEventAggregator.EventAggregator), _dec(_class = function Dashboard(ts, ea) {
+    var _this = this;
+
     _classCallCheck(this, Dashboard);
 
     this.users = [];
 
     this.ts = ts;
-    this.users = this.ts.users;
+    this.ts.getUsers();
+    ea.subscribe(_messages.UserUpdate, function (msg) {
+      _this.users = msg.users;
+    });
   }) || _class);
 });
 define('viewmodels/login/login',['exports', 'aurelia-framework', '../../services/tweet-service'], function (exports, _aureliaFramework, _tweetService) {
@@ -560,6 +573,9 @@ define('viewmodels/signup/signup',['exports', 'aurelia-framework', '../../servic
     return Signup;
   }()) || _class);
 });
+define('viewmodels/tweet/tweet',[], function () {
+  "use strict";
+});
 define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"nav-bar.html\"></require>\n  <div class=\"ui container page-host\">\n    <nav-bar router.bind=\"router\"></nav-bar>\n    <router-view></router-view>\n  </div>\n</template>\n"; });
 define('text!home.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"nav-bar.html\"></require>\n  <div class=\"ui container page-host\">\n    <nav-bar router.bind=\"router\"></nav-bar>\n    <router-view></router-view>\n  </div>\n</template>\n"; });
 define('text!nav-bar.html', ['module'], function(module) { module.exports = "<template bindable=\"router\">\n  <nav class=\"ui inverted menu\">\n    <header class=\"header item\"><a href=\"/\"> Donation </a></header>\n    <div class=\"right menu\">\n      <div repeat.for=\"row of router.navigation\">\n        <a class=\"${row.isActive ? 'active' : ''} item\"  href.bind=\"row.href\">${row.title}</a>\n      </div>\n    </div>\n  </nav>\n</template>\n"; });
@@ -567,4 +583,5 @@ define('text!viewmodels/dashboard/dashboard.html', ['module'], function(module) 
 define('text!viewmodels/login/login.html', ['module'], function(module) { module.exports = "<template>\n\n  <form submit.delegate=\"login($event)\" class=\"ui stacked segment form\">\n    <h3 class=\"ui header\">Log-in</h3>\n    <div class=\"field\">\n      <label>Email</label> <input placeholder=\"Email\" value.bind=\"email\"/>\n    </div>\n    <div class=\"field\">\n      <label>Password</label> <input type=\"password\" value.bind=\"password\"/>\n    </div>\n    <button class=\"ui blue submit button\">Login</button>\n    <h3>${prompt}</h3>\n  </form>\n\n</template>\n"; });
 define('text!viewmodels/logout/logout.html', ['module'], function(module) { module.exports = "<template>\n\n  <form submit.delegate=\"logout($event)\" class=\"ui stacked segment form\">\n    <h3 class=\"ui header\">Are you sure you want to log out?</h3>\n    <button class=\"ui blue submit button\">Logout</button>\n  </form>\n\n</template>\n"; });
 define('text!viewmodels/signup/signup.html', ['module'], function(module) { module.exports = "<template>\n  <form submit.delegate=\"register($event)\" class=\"ui stacked segment form\">\n    <h3 class=\"ui header\">Register</h3>\n    <div class=\"two fields\">\n      <div class=\"field\">\n        <label>First Name</label>\n        <input placeholder=\"First Name\" type=\"text\" value.bind=\"firstName\">\n      </div>\n      <div class=\"field\">\n        <label>Last Name</label>\n        <input placeholder=\"Last Name\" type=\"text\" value.bind=\"lastName\">\n      </div>\n    </div>\n    <div class=\"field\">\n      <label>Email</label>\n      <input placeholder=\"Email\" type=\"text\" value.bind=\"email\">\n    </div>\n    <div class=\"two fields\">\n      <div class=\"field\">\n        <label>Password</label>\n        <input type=\"password\" value.bind=\"password\">\n      </div>\n      <div class=\"field\">\n        <label>Repeat Password</label>\n        <input type=\"password\" value.bind=\"repeatPassword\">\n      </div>\n    </div>\n    <button class=\"ui blue submit button\">Submit</button>\n  </form>\n</template>\n"; });
+define('text!viewmodels/tweet/tweet.html', ['module'], function(module) { module.exports = ""; });
 //# sourceMappingURL=app-bundle.js.map
