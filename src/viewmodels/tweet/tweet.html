@@ -1,0 +1,14 @@
+<template>
+
+  <form submit.trigger="makeTweet()" class="ui form stacked segment">
+
+    <h3 class='ui dividing header'> Make a Tweet </h3>
+    <div class="grouped inline fields">
+      <div class="ui fluid action input">
+        <input placeholder="Text..." type="text" value.bind="tweetText">
+        <Button class="ui blue submit button">Tweet</Button>
+      </div>
+    </div>
+  </form>
+
+</template>

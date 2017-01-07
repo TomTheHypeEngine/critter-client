@@ -4,15 +4,14 @@ import TweetService from '../../services/tweet-service';
 @inject(TweetService)
 export class Login {
 
-  email = 'marge@simpson.com';
-  password = 'secret';
+  tweetText = '';
 
   constructor(ts) {
     this.tweetService = ts;
   }
 
-  login(e) {
-    console.log(`Trying to log in ${this.email}`);
-    this.tweetService.login(this.email, this.password);
+  makeTweet() {
+    console.log('Trying to tweet: ' + this.tweetText);
+    this.tweetService.tweet(this.tweetText);
   }
 }
