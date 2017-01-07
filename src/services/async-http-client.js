@@ -25,7 +25,7 @@ export default class AsyncHttpClient {
       if (status.success) {
         localStorage.tweet = JSON.stringify(response.content);
         this.http.configure(configuration => {
-          configuration.withHeader('Authorization', 'bearer' + response.content.token);
+          configuration.withHeader('Authorization', 'bearer ' + response.content.token);
         });
       }
       this.ea.publish(new LoginStatus(status));

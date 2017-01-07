@@ -25,6 +25,7 @@ export default class TweetService {
 
   tweet(content) {
     const tweet = {
+      tweeter: null,
       content: content
     };
     this.ac.post('/api/tweets', tweet).then(res => {
