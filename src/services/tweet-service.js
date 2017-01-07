@@ -1,6 +1,6 @@
 import {inject} from 'aurelia-framework';
 import Fixtures from './fixtures';
-import {LoginStatus, UserUpdate, TimelineUpdate} from './messages';
+import {LoginStatus, UserUpdate, TimelineUpdate, ChangeRouteAfterLogout} from './messages';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import AsyncHttpClient from './async-http-client';
 
@@ -20,6 +20,13 @@ export default class TweetService {
     this.ac.get('/api/users').then(res => {
       this.users = res.content;
       this.ea.publish(new UserUpdate(this.users));
+    });
+  }
+
+  getTweets() {
+    this.ac.get('/api/tweets').then(res => {
+      this.tweets = res.content;
+      this.ea.publish(new TimelineUpdate(this.tweets));
     });
   }
 
