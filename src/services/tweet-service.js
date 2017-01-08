@@ -31,9 +31,9 @@ export default class TweetService {
     });
   }
 
-  getUserData(id) {
+  getUserTweets(id) {
     this.ac.get('/api/users/' + id + '/tweets').then(res => {
-      this.ea.publish(new UserTimelineLoaded(res));
+      this.ea.publish(new UserTimelineLoaded(res.content.reverse()));
     });
   }
 
