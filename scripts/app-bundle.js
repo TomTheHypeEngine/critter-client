@@ -102,7 +102,7 @@ define('home',['exports', 'aurelia-framework'], function (exports, _aureliaFrame
     }
 
     Home.prototype.configureRouter = function configureRouter(config, router) {
-      config.map([{ route: ['dashboard', ''], name: 'dashboard', moduleId: 'viewmodels/dashboard/dashboard', nav: true, title: 'Dashboard' }, { route: 'tweet', name: 'tweet', moduleId: 'viewmodels/tweet/tweet', nav: true, title: 'Create Tweet' }, { route: 'timeline', name: 'timeline', moduleId: 'viewmodels/global_timeline/global_timeline', nav: true, title: 'Timeline' }, { route: 'logout', name: 'logout', moduleId: 'viewmodels/logout/logout', nav: true, title: 'Logout' }]);
+      config.map([{ route: ['dashboard', ''], name: 'dashboard', moduleId: 'viewmodels/dashboard/dashboard', nav: true, title: 'Dashboard' }, { route: 'tweet_timeline', name: 'tweet_timeline', moduleId: 'viewmodels/tweet_timeline/tweet_timeline', nav: true, title: 'Global Tweets' }, { route: 'logout', name: 'logout', moduleId: 'viewmodels/logout/logout', nav: true, title: 'Logout' }]);
 
       config.mapUnknownRoutes(function (instruction) {
         return 'dashboard';
@@ -311,12 +311,6 @@ define('services/messages',["exports"], function (exports) {
 
     this.users = users;
   };
-
-  var ChangeRouteAfterLogout = exports.ChangeRouteAfterLogout = function ChangeRouteAfterLogout(route) {
-    _classCallCheck(this, ChangeRouteAfterLogout);
-
-    this.route = route;
-  };
 });
 define('services/tweet-service',['exports', 'aurelia-framework', './fixtures', './messages', 'aurelia-event-aggregator', './async-http-client'], function (exports, _aureliaFramework, _fixtures, _messages, _aureliaEventAggregator, _asyncHttpClient) {
   'use strict';
@@ -385,7 +379,7 @@ define('services/tweet-service',['exports', 'aurelia-framework', './fixtures', '
         var returnedTweets = res.content;
         _this3.tweets.push(returnedTweets);
         console.log('Tweet created with tweetText ' + content);
-        _this3.ea.publish(new _messages.TimelineUpdate(_this3.tweets));
+        _this3.getTweets();
       });
     };
 
@@ -496,6 +490,7 @@ define('viewmodels/global_timeline/global_timeline',['exports', 'aurelia-framewo
     this.tweetService = ts;
     this.tweetService.getTweets();
     ea.subscribe(_messages.TimelineUpdate, function (msg) {
+      console.log('tweet_Timeline Update');
       _this.tweets = msg.tweets;
     });
   }) || _class);
@@ -576,7 +571,6 @@ define('viewmodels/logout/logout',['exports', '../../services/tweet-service', 'a
 
     Logout.prototype.logout = function logout() {
       this.tweetService.logout();
-      this.ea.publish(new _messages.ChangeRouteAfterLogout('login'));
     };
 
     return Logout;
@@ -665,7 +659,6 @@ define('viewmodels/tweet/tweet',['exports', 'aurelia-framework', '../../services
 
     Login.prototype.makeTweet = function makeTweet() {
       if (this.tweetText !== '') {
-        console.log('Trying to tweet: ' + this.tweetText);
         this.tweetService.tweet(this.tweetText);
         this.tweetText = '';
       } else {}
@@ -673,6 +666,23 @@ define('viewmodels/tweet/tweet',['exports', 'aurelia-framework', '../../services
 
     return Login;
   }()) || _class);
+});
+define('viewmodels/tweet_timeline/tweet_timeline',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var TweetTimeline = exports.TweetTimeline = function TweetTimeline() {
+    _classCallCheck(this, TweetTimeline);
+  };
 });
 define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"nav-bar.html\"></require>\n  <div class=\"ui container page-host\">\n    <nav-bar router.bind=\"router\"></nav-bar>\n    <router-view></router-view>\n  </div>\n</template>\n"; });
 define('text!home.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"nav-bar.html\"></require>\n  <div class=\"ui container page-host\">\n    <nav-bar router.bind=\"router\"></nav-bar>\n    <router-view></router-view>\n  </div>\n</template>\n"; });
@@ -682,5 +692,6 @@ define('text!viewmodels/global_timeline/global_timeline.html', ['module'], funct
 define('text!viewmodels/login/login.html', ['module'], function(module) { module.exports = "<template>\n\n  <form submit.delegate=\"login($event)\" class=\"ui stacked segment form\">\n    <h3 class=\"ui header\">Log-in</h3>\n    <div class=\"field\">\n      <label>Email</label> <input placeholder=\"Email\" value.bind=\"email\"/>\n    </div>\n    <div class=\"field\">\n      <label>Password</label> <input type=\"password\" value.bind=\"password\"/>\n    </div>\n    <button class=\"ui blue submit button\">Login</button>\n    <h3>${prompt}</h3>\n  </form>\n\n</template>\n"; });
 define('text!viewmodels/logout/logout.html', ['module'], function(module) { module.exports = "<template>\n\n  <form submit.delegate=\"logout($event)\" class=\"ui stacked segment form\">\n    <h3 class=\"ui header\">Are you sure you want to log out?</h3>\n    <button class=\"ui blue submit button\">Logout</button>\n  </form>\n\n</template>\n"; });
 define('text!viewmodels/signup/signup.html', ['module'], function(module) { module.exports = "<template>\n  <form submit.delegate=\"register($event)\" class=\"ui stacked segment form\">\n    <h3 class=\"ui header\">Register</h3>\n    <div class=\"two fields\">\n      <div class=\"field\">\n        <label>First Name</label>\n        <input placeholder=\"First Name\" type=\"text\" value.bind=\"firstName\">\n      </div>\n      <div class=\"field\">\n        <label>Last Name</label>\n        <input placeholder=\"Last Name\" type=\"text\" value.bind=\"lastName\">\n      </div>\n    </div>\n    <div class=\"field\">\n      <label>Email</label>\n      <input placeholder=\"Email\" type=\"text\" value.bind=\"email\">\n    </div>\n    <div class=\"two fields\">\n      <div class=\"field\">\n        <label>Password</label>\n        <input type=\"password\" value.bind=\"password\">\n      </div>\n      <div class=\"field\">\n        <label>Repeat Password</label>\n        <input type=\"password\" value.bind=\"repeatPassword\">\n      </div>\n    </div>\n    <button class=\"ui blue submit button\">Submit</button>\n  </form>\n</template>\n"; });
-define('text!viewmodels/tweet/tweet.html', ['module'], function(module) { module.exports = "<template>\n\n  <form submit.trigger=\"makeTweet()\" class=\"ui form stacked segment\">\n\n    <h3 class='ui dividing header'> Make a Tweet </h3>\n    <div class=\"grouped inline fields\">\n      <div class=\"ui fluid action input\">\n        <input placeholder=\"Text...\" type=\"text\" value.bind=\"tweetText\">\n        <Button class=\"ui blue submit button\">Tweet</Button>\n      </div>\n    </div>\n  </form>\n\n</template>\n"; });
+define('text!viewmodels/tweet/tweet.html', ['module'], function(module) { module.exports = "<template>\n\n  <form submit.trigger=\"makeTweet()\" class=\"ui form raised segment\">\n\n    <h3 class='ui dividing header'> Make a Tweet </h3>\n    <div class=\"grouped inline fields\">\n      <div class=\"ui fluid big action input\">\n        <textarea placeholder=\"Text...\" rows=\"4\" maxlength=\"140\" value.bind=\"tweetText\"></textarea>\n        <Button class=\"ui ${tweetText ? 'blue' : 'grey'} submit button\">Tweet</Button>\n      </div>\n      <div class=\"ui label ${tweetText ? 'grey' : 'red'}\">\n        <p>Text length: ${tweetText.length} / 140</p>\n      </div>\n    </div>\n  </form>\n\n</template>\n"; });
+define('text!viewmodels/tweet_timeline/tweet_timeline.html', ['module'], function(module) { module.exports = "<template>\n  <article class=\"ui segment\">\n    <section class=\"ui raised form\">\n      <div class=\"two high row\">\n        <compose view-model=\"../tweet/tweet\"></compose>\n      </div>\n      <div class=\"four high row\">\n        <compose view-model=\"../global_timeline/global_timeline\"></compose>\n      </div>\n    </section>\n  </article>\n</template>\n"; });
 //# sourceMappingURL=app-bundle.js.map
