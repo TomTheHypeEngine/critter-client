@@ -4,7 +4,7 @@ import Fixtures from './fixtures';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {LoginStatus} from './messages';
 
-@inject(HttpClient, Fixtures, EventAggregator )
+@inject(HttpClient, Fixtures, EventAggregator)
 export default class AsyncHttpClient {
 
   constructor(httpClient, fixtures, ea) {

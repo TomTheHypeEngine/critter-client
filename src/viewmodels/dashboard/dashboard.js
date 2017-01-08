@@ -12,6 +12,7 @@ export class Dashboard {
     this.ts.getUsers();
     ea.subscribe(UserUpdate, msg => {
       this.users = msg.users;
+      this.ts.getLoggedInUser();
     });
   }
 }
