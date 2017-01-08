@@ -12,7 +12,6 @@ export class Login {
 
   makeTweet() {
     if (this.tweetText !== '') {
-      console.log('Trying to tweet: ' + this.tweetText);
       this.tweetService.tweet(this.tweetText);
       this.tweetText = '';
     } else {

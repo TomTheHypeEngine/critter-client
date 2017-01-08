@@ -13,7 +13,6 @@ export class Logout {
 
   logout() {
     this.tweetService.logout();
-    this.ea.publish(new ChangeRouteAfterLogout('login'));
   }
 }
 
