@@ -9,17 +9,31 @@ export default class TweetService {
 
   tweets = [];
   users = [];
+  loggedInUser = {};
 
   constructor(data, ea, ac) {
     // this.methods = data.methods;
     this.ea = ea;
     this.ac = ac;
+
+    ea.subscribe(LoginStatus, msg => {
+      if (msg.status) {
+        this.getLoggedInUser();
+      }
+    });
   }
 
   getUsers() {
     this.ac.get('/api/users').then(res => {
       this.users = res.content;
       this.ea.publish(new UserUpdate(this.users));
+    });
+  }
+
+  updateUser(user) {
+    this.ac.post('/api/users/' + user._id, user).then(res => {
+      this.getUsers();
+      this.loggedInUser = user;
     });
   }
 
@@ -64,6 +78,13 @@ export default class TweetService {
       password: password
     };
     this.ac.authenticate('/api/users/authenticate', user);
+  }
+
+  getLoggedInUser() {
+    if (localStorage.tweet && localStorage.tweet !== 'null') {
+      let auth = JSON.parse(localStorage.tweet);
+      this.loggedInUser = auth.user;
+    }
   }
 
   logout() {

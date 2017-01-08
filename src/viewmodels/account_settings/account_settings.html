@@ -1,0 +1,30 @@
+<template>
+  <form submit.delegate="updateAccount($event)" class="ui stacked segment form">
+    <h3 class="ui header">Update your account:</h3>
+    <div class="two fields">
+      <div class="field">
+        <label>First Name</label>
+        <input placeholder="First Name" type="text" value.bind="user.firstName">
+      </div>
+      <div class="field">
+        <label>Last Name</label>
+        <input placeholder="Last Name" type="text" value.bind="user.lastName">
+      </div>
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input placeholder="Email" type="text" value.bind="user.email">
+    </div>
+    <div class="two fields">
+      <div class="field">
+        <label>Password</label>
+        <input type="password" value.bind="user.password">
+      </div>
+      <div class="field">
+        <label>Repeat Password</label>
+        <input type="password" value.bind="repeatPassword">
+      </div>
+    </div>
+    <button class="ui ${repeatPassword === user.password ? 'blue' : 'red'} submit button">Submit</button>
+  </form>
+</template>

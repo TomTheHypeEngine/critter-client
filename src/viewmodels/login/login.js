@@ -12,7 +12,7 @@ export class Login {
   }
 
   login(e) {
-    console.log(`Trying to log in ${this.email}`);
+    // console.log(`Trying to log in ${this.email}`);
     this.tweetService.login(this.email, this.password);
   }
 }

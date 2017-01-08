@@ -6,9 +6,9 @@
     <div class="grouped inline fields">
       <div class="ui fluid big action input">
         <textarea placeholder="Text..." rows="4" maxlength="140" value.bind="tweetText"></textarea>
-        <Button class="ui ${tweetText ? 'blue' : 'grey'} submit button">Tweet</Button>
+        <Button class="ui ${tweetText ? 'blue' : 'red'} submit button">Tweet</Button>
       </div>
-      <div class="ui label ${tweetText ? 'grey' : 'red'}">
+      <div class="ui label ${tweetText ? 'blue' : 'red'}">
         <p>Text length: ${tweetText.length} / 140</p>
       </div>
     </div>
