@@ -5,14 +5,19 @@ import {UserUpdate} from '../../services/messages';
 
 @inject(TweetService, EventAggregator)
 export class Dashboard {
+
+  loggedInUser = '';
   users = [];
 
   constructor(ts, ea) {
     this.ts = ts;
-    this.ts.getUsers();
     ea.subscribe(UserUpdate, msg => {
       this.users = msg.users;
-      this.ts.getLoggedInUser();
+      this.loggedInUser = this.ts.getLoggedInUser();
     });
+  }
+
+  activate() {
+    this.ts.getUsers();
   }
 }

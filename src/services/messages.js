@@ -15,3 +15,9 @@ export class UserUpdate {
     this.users = users;
   }
 }
+
+export class UserTimelineLoaded {
+  constructor(data) {
+    this.data = data;
+  }
+}

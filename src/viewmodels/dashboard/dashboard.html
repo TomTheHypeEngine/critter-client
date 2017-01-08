@@ -1,23 +1,14 @@
 <template>
-  <article class="ui stacked segment">
-    <h3 class="ui dividing header">Welcome to Critter</h3>
-
-    <h4 class="ui dividing header"> User list </h4>
-    <table class="ui celled table segment">
-      <thead>
-        <tr>
-          <th>First name</th>
-          <th>Last name</th>
-          <th>email</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr repeat.for="user of users">
-          <td> ${user.firstName}</td>
-          <td> ${user.lastName}</td>
-          <td> ${user.email}</td>
-        </tr>
-      </tbody>
-    </table>
+  <article class="ui segment">
+    <h1 class="ui dividing header">Hi ${loggedInUser.firstName} - Welcome to Critter</h1>
+    <div class="ui padded text segment">
+      <h2>Your own timeline is <a href="#user/${loggedInUser._id}/timeline">here</a></h2>
+    </div>
+    <h2 class="ui dividing header"> See the Tweet Timeline of a single user: </h2>
+    <div class="ui segments">
+      <div class="ui segment" repeat.for="user of users">
+        <a href="#user/${user._id}/timeline">${user.firstName} ${user.lastName} ${loggedInUser._id == user._id ? ' - your personal timeline' : ''}</a>
+      </div>
+    </div>
   </article>
 </template>
