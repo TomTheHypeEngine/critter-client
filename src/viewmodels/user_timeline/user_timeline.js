@@ -13,7 +13,7 @@ export class UserTimeline {
     this.ts = ts;
     this.ea = ea;
     ea.subscribe(UserTimelineLoaded, res => {
-      this.userTweets = res.data.content;
+      this.userTweets = res.data;
       if (this.userTweets.length) {
         this.userName = this.userTweets[0].tweeter.firstName + ' ' + this.userTweets[0].tweeter.lastName;
       }
@@ -22,6 +22,6 @@ export class UserTimeline {
 
   activate(params) {
     this.id = params.id;
-    this.ts.getUserData(params.id);
+    this.ts.getUserTweets(params.id);
   }
 }
