@@ -1,12 +1,15 @@
 <template>
 
-  <form submit.trigger="makeTweet()" class="ui form stacked segment">
+  <form submit.trigger="makeTweet()" class="ui form raised segment">
 
     <h3 class='ui dividing header'> Make a Tweet </h3>
     <div class="grouped inline fields">
-      <div class="ui fluid action input">
-        <input placeholder="Text..." type="text" value.bind="tweetText">
-        <Button class="ui blue submit button">Tweet</Button>
+      <div class="ui fluid big action input">
+        <textarea placeholder="Text..." rows="4" maxlength="140" value.bind="tweetText"></textarea>
+        <Button class="ui ${tweetText ? 'blue' : 'grey'} submit button">Tweet</Button>
+      </div>
+      <div class="ui label ${tweetText ? 'grey' : 'red'}">
+        <p>Text length: ${tweetText.length} / 140</p>
       </div>
     </div>
   </form>
