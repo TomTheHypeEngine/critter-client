@@ -40,7 +40,7 @@ export default class TweetService {
       const returnedTweets = res.content;
       this.tweets.push(returnedTweets);
       console.log('Tweet created with tweetText ' + content);
-      this.ea.publish(new TimelineUpdate(this.tweets));
+      this.getTweets(); //Get all tweets again after posting a new one
     });
   }
 

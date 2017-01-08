@@ -1,11 +1,11 @@
 <template>
 
-  <form submit.trigger="makeTweet()" class="ui form stacked segment">
+  <form submit.trigger="makeTweet()" class="ui form raised segment">
 
     <h3 class='ui dividing header'> Make a Tweet </h3>
     <div class="grouped inline fields">
       <div class="ui fluid action input">
-        <input placeholder="Text..." type="text" value.bind="tweetText">
+        <textarea placeholder="Text..." rows="5" value.bind="tweetText"></textarea>
         <Button class="ui blue submit button">Tweet</Button>
       </div>
     </div>
