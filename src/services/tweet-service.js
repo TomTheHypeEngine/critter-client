@@ -1,6 +1,7 @@
 import {inject} from 'aurelia-framework';
 import Fixtures from './fixtures';
-import {LoginStatus, UserUpdate, TimelineUpdate, ChangeRouteAfterLogout} from './messages';
+import {LoginStatus, UserUpdate, TimelineUpdate,
+  ChangeRouteAfterLogout, UserTimelineLoaded} from './messages';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import AsyncHttpClient from './async-http-client';
 
@@ -27,6 +28,12 @@ export default class TweetService {
     this.ac.get('/api/users').then(res => {
       this.users = res.content;
       this.ea.publish(new UserUpdate(this.users));
+    });
+  }
+
+  getUserData(id) {
+    this.ac.get('/api/users/' + id + '/tweets').then(res => {
+      this.ea.publish(new UserTimelineLoaded(res));
     });
   }
 
@@ -84,6 +91,7 @@ export default class TweetService {
     if (localStorage.tweet && localStorage.tweet !== 'null') {
       let auth = JSON.parse(localStorage.tweet);
       this.loggedInUser = auth.user;
+      return this.loggedInUser;
     }
   }
 

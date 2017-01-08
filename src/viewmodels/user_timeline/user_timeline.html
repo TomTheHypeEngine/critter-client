@@ -1,0 +1,8 @@
+<template>
+  <div class="ui segment">
+    <h3 class='ui dividing header'> Tweet Timeline for ${userName} </h3>
+    <div class="ui raised very padded text container segment" repeat.for="tweet of userTweets">
+        <p class="big">${tweet.content}</p>
+    </div>
+  </div>
+</template>
