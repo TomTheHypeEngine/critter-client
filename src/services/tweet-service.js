@@ -54,7 +54,7 @@ export default class TweetService {
 
   tweet(content) {
     const tweet = {
-      tweeter: null,
+      tweeter: this.loggedInUser._id,
       content: content
     };
     this.ac.post('/api/tweets', tweet).then(res => {
