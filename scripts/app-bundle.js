@@ -154,6 +154,15 @@ define('main',['exports', './environment'], function (exports, _environment) {
     });
   }
 });
+define('resources/index',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.configure = configure;
+  function configure(config) {}
+});
 define('services/async-http-client',['exports', 'aurelia-framework', 'aurelia-http-client', './fixtures', 'aurelia-event-aggregator', './messages'], function (exports, _aureliaFramework, _aureliaHttpClient, _fixtures, _aureliaEventAggregator, _messages) {
   'use strict';
 
@@ -395,7 +404,7 @@ define('services/tweet-service',['exports', 'aurelia-framework', './fixtures', '
       var _this6 = this;
 
       var tweet = {
-        tweeter: null,
+        tweeter: this.loggedInUser._id,
         content: content
       };
       this.ac.post('/api/tweets', tweet).then(function (res) {
@@ -449,15 +458,6 @@ define('services/tweet-service',['exports', 'aurelia-framework', './fixtures', '
   }()) || _class);
   exports.default = TweetService;
 });
-define('resources/index',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.configure = configure;
-  function configure(config) {}
-});
 define('viewmodels/account_settings/account_settings',['exports', 'aurelia-framework', '../../services/tweet-service', 'aurelia-event-aggregator'], function (exports, _aureliaFramework, _tweetService, _aureliaEventAggregator) {
   'use strict';
 
@@ -487,6 +487,8 @@ define('viewmodels/account_settings/account_settings',['exports', 'aurelia-frame
       _classCallCheck(this, AccountSettings);
 
       this.user = {};
+      this.oldPassword = '';
+      this.newPassword = '';
       this.repeatPassword = '';
 
       this.ts = ts;
@@ -495,10 +497,13 @@ define('viewmodels/account_settings/account_settings',['exports', 'aurelia-frame
     }
 
     AccountSettings.prototype.updateAccount = function updateAccount(e) {
-      if (this.repeatPassword === this.user.password) {
+      if (this.repeatPassword === this.newPassword && oldPassword === user.password) {
+        this.user.password = this.newPassword;
         this.ts.loggedInUser = this.user;
         this.ts.updateUser(this.user);
       }
+      this.repeatPassword = '';
+      this.oldPassword = '';
       this.repeatPassword = '';
     };
 
@@ -586,7 +591,6 @@ define('viewmodels/global_timeline/global_timeline',['exports', 'aurelia-framewo
     this.tweetService = ts;
     this.tweetService.getTweets();
     ea.subscribe(_messages.TimelineUpdate, function (msg) {
-      console.log('tweet_Timeline Update');
       _this.tweets = msg.tweets;
     });
   }) || _class);
@@ -710,7 +714,7 @@ define('viewmodels/signup/signup',['exports', 'aurelia-framework', '../../servic
 
     Signup.prototype.register = function register(e) {
       this.showSignup = false;
-      if (this.password === this.repeatPassword) {
+      if (this.password === this.repeatPassword && this.firstName && this.lastName && this.email && this.password) {
         this.tweetService.register(this.firstName, this.lastName, this.email, this.password);
         this.tweetService.login(this.email, this.password);
       }
@@ -830,16 +834,16 @@ define('viewmodels/user_timeline/user_timeline',['exports', 'aurelia-framework',
     return UserTimeline;
   }()) || _class);
 });
-define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"nav-bar.html\"></require>\n  <div class=\"ui container page-host\">\n    <nav-bar router.bind=\"router\"></nav-bar>\n    <router-view></router-view>\n  </div>\n</template>\n"; });
-define('text!home.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"nav-bar.html\"></require>\n  <div class=\"ui container page-host\">\n    <nav-bar router.bind=\"router\"></nav-bar>\n    <router-view></router-view>\n  </div>\n</template>\n"; });
-define('text!nav-bar.html', ['module'], function(module) { module.exports = "<template bindable=\"router\">\n  <nav class=\"ui inverted menu\">\n    <header class=\"header item\"><a href=\"\"> Critter - a Twitter clone </a></header>\n    <div class=\"right menu\">\n      <div repeat.for=\"row of router.navigation\">\n        <a class=\"${row.isActive ? 'active' : ''} item\"  href.bind=\"row.href\">${row.title}</a>\n      </div>\n    </div>\n  </nav>\n</template>\n"; });
-define('text!viewmodels/account_settings/account_settings.html', ['module'], function(module) { module.exports = "<template>\n  <form submit.delegate=\"updateAccount($event)\" class=\"ui stacked segment form\">\n    <h3 class=\"ui header\">Update your account:</h3>\n    <div class=\"two fields\">\n      <div class=\"field\">\n        <label>First Name</label>\n        <input placeholder=\"First Name\" type=\"text\" value.bind=\"user.firstName\">\n      </div>\n      <div class=\"field\">\n        <label>Last Name</label>\n        <input placeholder=\"Last Name\" type=\"text\" value.bind=\"user.lastName\">\n      </div>\n    </div>\n    <div class=\"field\">\n      <label>Email</label>\n      <input placeholder=\"Email\" type=\"text\" value.bind=\"user.email\">\n    </div>\n    <div class=\"two fields\">\n      <div class=\"field\">\n        <label>Password</label>\n        <input type=\"password\" value.bind=\"user.password\">\n      </div>\n      <div class=\"field\">\n        <label>Repeat Password</label>\n        <input type=\"password\" value.bind=\"repeatPassword\">\n      </div>\n    </div>\n    <button class=\"ui ${repeatPassword === user.password ? 'blue' : 'red'} submit button\">Submit</button>\n  </form>\n</template>\n"; });
-define('text!viewmodels/dashboard/dashboard.html', ['module'], function(module) { module.exports = "<template>\n  <article class=\"ui segment\">\n    <h1 class=\"ui dividing header\">Hi ${loggedInUser.firstName} - Welcome to Critter</h1>\n    <div class=\"ui padded text segment\">\n      <h2>Your own timeline is <a href=\"#user/${loggedInUser._id}/timeline\">here</a></h2>\n    </div>\n    <h2 class=\"ui dividing header\"> See the Tweet Timeline of a single user: </h2>\n    <div class=\"ui segments\">\n      <div class=\"ui segment\" repeat.for=\"user of users\">\n        <a href=\"#user/${user._id}/timeline\">${user.firstName} ${user.lastName} ${loggedInUser._id == user._id ? ' - your personal timeline' : ''}</a>\n      </div>\n    </div>\n  </article>\n</template>\n"; });
-define('text!viewmodels/global_timeline/global_timeline.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"ui segment\">\n    <div class=\"ui raised very padded text container segment\" repeat.for=\"tweet of tweets\">\n      <h2 class=\"ui header\">${tweet.tweeter.firstName} ${tweet.tweeter.lastName}</h2>\n      <p>${tweet.content}</p>\n    </div>\n  </div>\n</template>\n"; });
-define('text!viewmodels/login/login.html', ['module'], function(module) { module.exports = "<template>\n\n  <form submit.delegate=\"login($event)\" class=\"ui stacked segment form\">\n    <h3 class=\"ui header\">Log-in</h3>\n    <div class=\"field\">\n      <label>Email</label> <input placeholder=\"Email\" value.bind=\"email\"/>\n    </div>\n    <div class=\"field\">\n      <label>Password</label> <input type=\"password\" value.bind=\"password\"/>\n    </div>\n    <button class=\"ui blue submit button\">Login</button>\n    <h3>${prompt}</h3>\n  </form>\n\n</template>\n"; });
-define('text!viewmodels/logout/logout.html', ['module'], function(module) { module.exports = "<template>\n\n  <form submit.delegate=\"logout($event)\" class=\"ui stacked segment form\">\n    <h3 class=\"ui header\">Are you sure you want to log out?</h3>\n    <button class=\"ui blue submit button\">Logout</button>\n  </form>\n\n</template>\n"; });
-define('text!viewmodels/signup/signup.html', ['module'], function(module) { module.exports = "<template>\n  <form submit.delegate=\"register($event)\" class=\"ui stacked segment form\">\n    <h3 class=\"ui header\">Register</h3>\n    <div class=\"two fields\">\n      <div class=\"field\">\n        <label>First Name</label>\n        <input placeholder=\"First Name\" type=\"text\" value.bind=\"firstName\">\n      </div>\n      <div class=\"field\">\n        <label>Last Name</label>\n        <input placeholder=\"Last Name\" type=\"text\" value.bind=\"lastName\">\n      </div>\n    </div>\n    <div class=\"field\">\n      <label>Email</label>\n      <input placeholder=\"Email\" type=\"text\" value.bind=\"email\">\n    </div>\n    <div class=\"two fields\">\n      <div class=\"field\">\n        <label>Password</label>\n        <input type=\"password\" value.bind=\"password\">\n      </div>\n      <div class=\"field\">\n        <label>Repeat Password</label>\n        <input type=\"password\" value.bind=\"repeatPassword\">\n      </div>\n    </div>\n    <button class=\"ui blue submit button\">Submit</button>\n  </form>\n</template>\n"; });
-define('text!viewmodels/tweet/tweet.html', ['module'], function(module) { module.exports = "<template>\n\n  <form submit.trigger=\"makeTweet()\" class=\"ui form raised segment\">\n\n    <h3 class='ui dividing header'> Make a Tweet </h3>\n    <div class=\"grouped inline fields\">\n      <div class=\"ui fluid big action input\">\n        <textarea placeholder=\"Text...\" rows=\"4\" maxlength=\"140\" value.bind=\"tweetText\"></textarea>\n        <Button class=\"ui ${tweetText ? 'blue' : 'red'} submit button\">Tweet</Button>\n      </div>\n      <div class=\"ui label ${tweetText ? 'blue' : 'red'}\">\n        <p>Text length: ${tweetText.length} / 140</p>\n      </div>\n    </div>\n  </form>\n\n</template>\n"; });
-define('text!viewmodels/tweet_timeline/tweet_timeline.html', ['module'], function(module) { module.exports = "<template>\n  <article class=\"ui segment\">\n    <section class=\"ui raised form\">\n      <div class=\"two high row\">\n        <compose view-model=\"../tweet/tweet\"></compose>\n      </div>\n      <div class=\"four high row\">\n        <compose view-model=\"../global_timeline/global_timeline\"></compose>\n      </div>\n    </section>\n  </article>\n</template>\n"; });
-define('text!viewmodels/user_timeline/user_timeline.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"ui segment\">\n    <h3 class='ui dividing header'> Tweet Timeline for ${userName} </h3>\n    <div class=\"ui raised very padded text container segment\" repeat.for=\"tweet of userTweets\">\n        <p class=\"big\">${tweet.content}</p>\n    </div>\n  </div>\n</template>\n"; });
+define('text!app.html', ['module'], function(module) { module.exports = "<template>\n <require from=\"nav-bar.html\"></require>\n   <div class=\"ui grid\" style=\"height: 100% !important\">\n     <div class=\"four wide column\">\n       <nav-bar router.bind=\"router\"></nav-bar>\n     </div>\n     <div class=\"ten wide column\">\n       <router-view></router-view>\n     </div>\n   </div>\n</template>\n"; });
+define('text!home.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"nav-bar.html\"></require>\n  <div class=\"ui grid\" style=\"height: 100% !important\">\n    <div class=\"four wide column\">\n      <nav-bar router.bind=\"router\"></nav-bar>\n    </div>\n    <div class=\"ten wide column\">\n      <router-view></router-view>\n    </div>\n  </div>\n</template>\n"; });
+define('text!nav-bar.html', ['module'], function(module) { module.exports = "<template bindable=\"router\">\n  <div class=\"ui vertical inverted sticky menu bottom\" style=\"height: 100% !important\">\n    <h2 class=\"header item\"><a href=\"/#\"> Critter - a Twitter clone </a></h2>\n    <div class=\"ui divider\"></div>\n    <div class=\"right menu\">\n      <div class=\"ui items\" repeat.for=\"row of router.navigation\">\n        <a class=\"${row.isActive ? 'active' : ''} item\"  href.bind=\"row.href\">${row.title}</a>\n      </div>\n    </div>\n  </div>\n</template>\n"; });
+define('text!viewmodels/account_settings/account_settings.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"height 20px\"></div>\n    <div class=\"ui raised segment\">\n      <h3 class=\"ui header\">Your current account data:</h3>\n        <div class=\"ui segment\">\n          <h4 class=\"ui header\">First Name</h4>\n          <p>${user.firstName}</p>\n        </div>\n        <div class=\"ui segment\">\n          <h4 class=\"ui header\">Last Name</h4>\n          <p>${user.lastName}</p>\n        </div>\n        <div class=\"ui segment\">\n          <h4 class=\"ui header\">Email</h4>\n          <p>${user.email}</p>\n      </div>\n    </div>\n\n    <form submit.delegate=\"updateAccount($event)\" class=\"ui raised segment form\">\n      <h3 class=\"ui header\">Update your account data:</h3>\n      <div class=\"two fields\">\n        <div class=\"field\">\n          <label>New First Name</label>\n          <input placeholder=\"First Name\" type=\"text\" value.bind=\"user.firstName\">\n        </div>\n        <div class=\"field\">\n          <label>New Last Name</label>\n          <input placeholder=\"Last Name\" type=\"text\" value.bind=\"user.lastName\">\n        </div>\n      </div>\n\n      <div class=\"two fields\">\n        <div class=\"field\">\n          <label>New Email</label>\n          <input placeholder=\"Email\" type=\"text\" value.bind=\"user.email\">\n        </div>\n        <div class=\"field\">\n          <label>Old Password</label>\n          <input type=\"password\" value.bind=\"oldPassword\">\n        </div>\n      </div>\n      <div class=\"two fields\">\n        <div class=\"field\">\n          <label>New Password</label>\n          <input type=\"password\" value.bind=\"newPassword\">\n        </div>\n        <div class=\"field\">\n          <label>Confirm New Password</label>\n          <input type=\"password\" value.bind=\"repeatPassword\">\n        </div>\n      </div>\n      <button class=\"ui ${repeatPassword === user.password ? 'blue' : 'red'} submit button\">Submit</button>\n    </form>\n\n</template>\n"; });
+define('text!viewmodels/dashboard/dashboard.html', ['module'], function(module) { module.exports = "<template>\n  <!--<article class=\"ui raised very padded text container segment\">-->\n    <!--<h1 class=\"ui dividing header\">Hi ${loggedInUser.firstName} - Welcome to Critter</h1>-->\n    <!--<div class=\"ui padded text segment\">-->\n      <!--<h2>Your own timeline is <a href=\"#user/${loggedInUser._id}/timeline\">here</a></h2>-->\n    <!--</div>-->\n    <!--<h2 class=\"ui dividing header\"> See the Tweet Timeline of a single user: </h2>-->\n    <!--<div class=\"ui segments\">-->\n      <!--<div class=\"ui segment\" repeat.for=\"user of users\">-->\n        <!--<a href=\"#user/${user._id}/timeline\">${user.firstName} ${user.lastName} ${loggedInUser._id == user._id ? ' - your personal timeline' : ''}</a>-->\n      <!--</div>-->\n    <!--</div>-->\n  <!--</article>-->\n  <article>\n    <div class=\"ui masthead vertical segment\">\n      <div class=\"ui container\">\n        <h1 class=\"ui dividing header\">Hi ${loggedInUser.firstName} - Nice to see you</h1>\n        <div class=\"sub header\">\n          <h3>Your own timeline is <a href=\"#user/${loggedInUser._id}/timeline\">here</a></h3>\n        </div>\n      </div>\n    </div>\n    <div class=\"ui container\" style=\"height: 50px\"></div>\n    <div class=\"main ui container\">\n      <div class=\"ui segment\">\n        <h2 class=\"ui dividing header\">See the timeline of another user</h2>\n        <div class=\"ui raised segments\">\n          <div class=\"ui segment\" repeat.for=\"user of users\">\n            <a href=\"#user/${user._id}/timeline\">${user.firstName} ${user.lastName} ${loggedInUser._id == user._id ? ' - this is you' : ''}</a>\n          </div>\n        </div>\n      </div>\n  </article>\n\n</template>\n"; });
+define('text!viewmodels/login/login.html', ['module'], function(module) { module.exports = "<template>\n\n  <div class=\"ui text container\">\n    <form submit.delegate=\"login($event)\" class=\"ui segment form\">\n      <h3 class=\"ui center aligned header\">Log-in to Critter</h3>\n      <div class=\"field\">\n        <label>Email</label> <input placeholder=\"Email\" value.bind=\"email\"/>\n      </div>\n      <div class=\"field\">\n        <label>Password </label> <input type=\"password\" value.bind=\"password\"/>\n      </div>\n      <div class=\"ui grid\">\n        <div class=\"four column row\">\n          <div class=\"left floated column\">\n            <button class=\"ui blue submit button\">Login</button>\n          </div>\n          <div class=\"right center aligned floated column\">\n            <a href=\"#/signup\">Sign up here</a>\n          </div>\n        </div>\n      </div>\n    </form>\n  </div>\n\n</template>\n"; });
+define('text!viewmodels/global_timeline/global_timeline.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"ui one link cards\">\n    <div class=\"ui card\" repeat.for=\"tweet of tweets\">\n      <div class=\"content\">\n        <div class=\"header\">${tweet.tweeter.firstName} ${tweet.tweeter.lastName}</div>\n        <!--<div class=\"meta\">Posted on: xx.xx.xxxx</div>-->\n        <div class=\"description\">${tweet.content}</div>\n      </div>\n    </div>\n  </div>\n</template>\n"; });
+define('text!viewmodels/logout/logout.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"height: 20px\"></div>\n  <form submit.delegate=\"logout($event)\" class=\"ui segment form\">\n    <h3 class=\"ui header\">Are you sure you want to log out?</h3>\n    <button class=\"ui blue submit button\">Logout</button>\n  </form>\n\n</template>\n"; });
+define('text!viewmodels/signup/signup.html', ['module'], function(module) { module.exports = "<template>\n  <form submit.delegate=\"register($event)\" class=\"ui segment form\">\n    <h3 class=\"ui header\">Register a new Account</h3>\n    <div class=\"two fields\">\n      <div class=\"field\">\n        <label>First Name ${firstName ? '' : '- must not be empty'}</label>\n        <input placeholder=\"First Name\" type=\"text\" value.bind=\"firstName\">\n      </div>\n      <div class=\"field\">\n        <label>Last Name ${lastName ? '' : '- must not be empty'}</label>\n        <input placeholder=\"Last Name\" type=\"text\" value.bind=\"lastName\">\n      </div>\n    </div>\n    <div class=\"field\">\n      <label>Email ${email ? '' : '- must not be empty'}</label>\n      <input placeholder=\"Email\" type=\"text\" value.bind=\"email\">\n    </div>\n    <div class=\"two fields\">\n      <div class=\"field\">\n        <label>Password ${password ? '' : '- must not be empty'}</label>\n        <input type=\"password\" value.bind=\"password\">\n      </div>\n      <div class=\"field\">\n        <label>Repeat Password ${repeatPassword !== password ? '- Passwords do not match' : ''}</label>\n        <input type=\"password\" value.bind=\"repeatPassword\">\n      </div>\n    </div>\n    <div class=\"ui grid\">\n      <div class=\"four column row\">\n        <div class=\"left floated column\">\n          <button class=\"ui ${password === repeatPassword && email && firstName && lastName ? 'blue' : 'red'} submit button\">Submit</button>\n        </div>\n        <div class=\"right center aligned floated column\">\n          <a href=\"#/signup\">Have an account? Log in here</a>\n        </div>\n      </div>\n    </div>\n  </form>\n</template>\n"; });
+define('text!viewmodels/tweet/tweet.html', ['module'], function(module) { module.exports = "<template>\n\n  <form submit.trigger=\"makeTweet()\" class=\"ui form segment\">\n\n    <h3 class='ui dividing header'> Make a Tweet </h3>\n    <div class=\"grouped inline fields\">\n      <div class=\"ui fluid big action input\">\n        <textarea placeholder=\"Text...\" rows=\"4\" maxlength=\"140\" value.bind=\"tweetText\"></textarea>\n        <Button class=\"ui ${tweetText ? 'blue' : 'red'} submit button\">Tweet</Button>\n      </div>\n      <div class=\"ui label ${tweetText ? 'blue' : 'red'}\">\n        <p>Text length: ${tweetText.length} / 140</p>\n      </div>\n    </div>\n  </form>\n\n</template>\n"; });
+define('text!viewmodels/tweet_timeline/tweet_timeline.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"ui container\">\n      <div style=\"height: 20px\"></div>\n      <compose view-model=\"../tweet/tweet\"></compose>\n      <div style=\"height: 50px\"></div>\n      <div class=\"ui container\">\n        <div class=\"ui segment\">\n          <h3 class=\"ui dividing header\">Global Timeline</h3>\n          <compose view-model=\"../global_timeline/global_timeline\"></compose>\n        </div>\n      </div>\n    </div>\n</template>\n"; });
+define('text!viewmodels/user_timeline/user_timeline.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"height: 20px\"></div>\n  <h3 class='ui dividing header'> Tweet Timeline for ${userName} </h3>\n  <div class=\"ui raised very padded text container segment\" repeat.for=\"tweet of userTweets\">\n    <p class=\"big\">${tweet.content}</p>\n  </div>\n</template>\n"; });
 //# sourceMappingURL=app-bundle.js.map
