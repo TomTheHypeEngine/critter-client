@@ -1,15 +1,25 @@
 <template>
 
-  <form submit.delegate="login($event)" class="ui stacked segment form">
-    <h3 class="ui header">Log-in</h3>
-    <div class="field">
-      <label>Email</label> <input placeholder="Email" value.bind="email"/>
-    </div>
-    <div class="field">
-      <label>Password</label> <input type="password" value.bind="password"/>
-    </div>
-    <button class="ui blue submit button">Login</button>
-    <h3>${prompt}</h3>
-  </form>
+  <div class="ui text container">
+    <form submit.delegate="login($event)" class="ui segment form">
+      <h3 class="ui center aligned header">Log-in to Critter</h3>
+      <div class="field">
+        <label>Email</label> <input placeholder="Email" value.bind="email"/>
+      </div>
+      <div class="field">
+        <label>Password </label> <input type="password" value.bind="password"/>
+      </div>
+      <div class="ui grid">
+        <div class="four column row">
+          <div class="left floated column">
+            <button class="ui blue submit button">Login</button>
+          </div>
+          <div class="right center aligned floated column">
+            <a href="#/signup">Sign up here</a>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
 
 </template>

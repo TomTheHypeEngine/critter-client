@@ -1,12 +1,13 @@
 <template>
-  <article class="ui segment">
-    <section class="ui raised form">
-      <div class="two high row">
-        <compose view-model="../tweet/tweet"></compose>
+    <div class="ui container">
+      <div style="height: 20px"></div>
+      <compose view-model="../tweet/tweet"></compose>
+      <div style="height: 50px"></div>
+      <div class="ui container">
+        <div class="ui segment">
+          <h3 class="ui dividing header">Global Timeline</h3>
+          <compose view-model="../global_timeline/global_timeline"></compose>
+        </div>
       </div>
-      <div class="four high row">
-        <compose view-model="../global_timeline/global_timeline"></compose>
-      </div>
-    </section>
-  </article>
+    </div>
 </template>

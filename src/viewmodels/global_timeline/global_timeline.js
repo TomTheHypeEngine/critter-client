@@ -12,7 +12,6 @@ export class GlobalTimeline {
     this.tweetService = ts;
     this.tweetService.getTweets();
     ea.subscribe(TimelineUpdate, msg => {
-      console.log('tweet_Timeline Update');
       this.tweets = msg.tweets;
     });
   }

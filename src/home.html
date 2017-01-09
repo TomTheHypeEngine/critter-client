@@ -1,7 +1,11 @@
 <template>
   <require from="nav-bar.html"></require>
-  <div class="ui container page-host">
-    <nav-bar router.bind="router"></nav-bar>
-    <router-view></router-view>
+  <div class="ui grid" style="height: 100% !important">
+    <div class="four wide column">
+      <nav-bar router.bind="router"></nav-bar>
+    </div>
+    <div class="ten wide column">
+      <router-view></router-view>
+    </div>
   </div>
 </template>

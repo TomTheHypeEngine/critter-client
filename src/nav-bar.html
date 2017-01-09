@@ -1,10 +1,11 @@
 <template bindable="router">
-  <nav class="ui inverted menu">
-    <header class="header item"><a href=""> Critter - a Twitter clone </a></header>
+  <div class="ui vertical inverted sticky menu bottom" style="height: 100% !important">
+    <h2 class="header item"><a href="/#"> Critter - a Twitter clone </a></h2>
+    <div class="ui divider"></div>
     <div class="right menu">
-      <div repeat.for="row of router.navigation">
+      <div class="ui items" repeat.for="row of router.navigation">
         <a class="${row.isActive ? 'active' : ''} item"  href.bind="row.href">${row.title}</a>
       </div>
     </div>
-  </nav>
+  </div>
 </template>
