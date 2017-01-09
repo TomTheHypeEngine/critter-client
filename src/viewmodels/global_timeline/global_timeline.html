@@ -1,8 +1,7 @@
 <template>
   <div class="ui segment">
-    <div class="ui raised very padded text container segment" repeat.for="tweet of tweets">
-      <h2 class="ui header">${tweet.tweeter.firstName} ${tweet.tweeter.lastName}</h2>
+    <div class="ui raised padded text container segment" repeat.for="tweet of tweets">
+      <h3 class="ui center aligned header">${tweet.tweeter.firstName} ${tweet.tweeter.lastName}</h3>
       <p>${tweet.content}</p>
-    </div>
   </div>
 </template>

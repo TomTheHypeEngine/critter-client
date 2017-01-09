@@ -6,6 +6,8 @@ import {EventAggregator} from 'aurelia-event-aggregator';
 export class AccountSettings {
 
   user = {};
+  oldPassword = '';
+  newPassword = '';
   repeatPassword = '';
 
   constructor(ts, ea) {
@@ -15,10 +17,13 @@ export class AccountSettings {
   }
 
   updateAccount(e) {
-    if (this.repeatPassword === this.user.password) {
+    if (this.repeatPassword === this.newPassword && oldPassword === user.password) {
+      this.user.password = this.newPassword;
       this.ts.loggedInUser = this.user;
       this.ts.updateUser(this.user);
     }
+    this.repeatPassword = '';
+    this.oldPassword = '';
     this.repeatPassword = '';
   }
 }
