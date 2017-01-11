@@ -3,7 +3,7 @@
     <div class="ui card" repeat.for="tweet of tweets">
       <div class="content">
         <div class="header">${tweet.tweeter.firstName} ${tweet.tweeter.lastName}</div>
-        <!--<div class="meta">Posted on: xx.xx.xxxx</div>-->
+        <div class="meta">Posted on: ${tweet.tweetDate}</div>
         <div class="description">${tweet.content}</div>
       </div>
     </div>
