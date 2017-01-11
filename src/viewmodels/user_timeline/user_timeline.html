@@ -1,26 +1,6 @@
 <template>
   <div style="height: 20px"></div>
   <h3 class='ui dividing header'> Tweet Timeline for ${userName} </h3>
-  <!--<div class="ui raised very padded text container segment" repeat.for="tweet of userTweets">-->
-    <!--<div class="ui grid">-->
-      <!--<div class="dividing row">-->
-        <!--<div class="left floated six wide column">-->
-          <!--<p class="big">${tweet.content}</p>-->
-        <!--</div>-->
-        <!--<div class="right floated one wide column"-->
-             <!--style="visibility: ${loggedInUser._id === userTweets[0].tweeter._id ? 'visible' : 'hidden'}">-->
-          <!--<div class="ui icon delete button" click.trigger="deleteTweet(tweet._id)" data-tooltip="Delete this tweet permanently">-->
-            <!--<i class="trash icon"></i>-->
-          <!--</div>-->
-        <!--</div>-->
-      <!--</div>-->
-      <!--<div class="row">-->
-        <!--<div class="right floated column">-->
-          <!--<p class="meta">${tweet.tweetDate}</p>-->
-        <!--</div>-->
-      <!--</div>-->
-    <!--</div>-->
-  <!--</div>-->
   <require from="../../utils/date-format"></require>
   <div class="ui one link cards">
     <div class="ui card" repeat.for="tweet of userTweets">

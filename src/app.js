@@ -40,7 +40,7 @@ export class App {
   attached() {
     if (this.ts.isAuthenticated()) {
       this.au.setRoot('home').then(res => {
-        this.router.navigateToRoute('tweet_timeline');
+        this.router.navigateToRoute('dashboard');
       });
     }
   }
