@@ -65,6 +65,13 @@ export default class TweetService {
     });
   }
 
+  deleteTweet(id) {
+    this.ac.delete('/api/tweets/' + id).then(res => {
+      console.log('Tweet deleted');
+      this.getUserTweets(this.loggedInUser._id);
+    });
+  }
+
   isAuthenticated() {
     return this.ac.isAuthenticated();
   }
