@@ -55,6 +55,7 @@ export default class TweetService {
   tweet(content) {
     const tweet = {
       tweeter: this.loggedInUser._id,
+      tweetDate: null,
       content: content
     };
     this.ac.post('/api/tweets', tweet).then(res => {
@@ -62,6 +63,13 @@ export default class TweetService {
       this.tweets.push(returnedTweets);
       console.log('Tweet created with tweetText ' + content);
       this.getTweets(); //Get all tweets again after posting a new one
+    });
+  }
+
+  deleteTweet(id) {
+    this.ac.delete('/api/tweets/' + id).then(res => {
+      console.log('Tweet deleted');
+      this.getUserTweets(this.loggedInUser._id);
     });
   }
 

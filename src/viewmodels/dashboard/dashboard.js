@@ -1,23 +1,37 @@
 import {inject} from 'aurelia-framework';
 import TweetService from '../../services/tweet-service';
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {UserUpdate} from '../../services/messages';
+import {UserTimelineLoaded, TimelineUpdate} from '../../services/messages';
 
 @inject(TweetService, EventAggregator)
-export class Dashboard {
+export class UserTimeline {
 
-  loggedInUser = '';
-  users = [];
+  userName = '';
+  userTweets = [];
+  loggedInUser = null;
 
   constructor(ts, ea) {
     this.ts = ts;
-    ea.subscribe(UserUpdate, msg => {
-      this.users = msg.users;
-      this.loggedInUser = this.ts.getLoggedInUser();
+    this.ea = ea;
+    this.loggedInUser = this.ts.getLoggedInUser();
+    // this.ts.getUserTweets(this.loggedInUser._id);
+    ea.subscribe(UserTimelineLoaded, res => {
+      this.userTweets = res.data;
+      if (this.userTweets.length) {
+        this.userName = this.userTweets[0].tweeter.firstName + ' ' + this.userTweets[0].tweeter.lastName;
+      }
+    });
+    ea.subscribe(TimelineUpdate, res => {
+      this.ts.getUserTweets(this.loggedInUser._id);
     });
   }
 
   activate() {
-    this.ts.getUsers();
+    this.ts.getUserTweets(this.loggedInUser._id);
+  }
+
+  deleteTweet(id) {
+    console.log(id);
+    this.ts.deleteTweet(id);
   }
 }
