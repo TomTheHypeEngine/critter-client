@@ -6,6 +6,14 @@
         <div class="header">${tweet.tweeter.firstName} ${tweet.tweeter.lastName}</div>
         <div class="meta">Posted on: ${tweet.tweetDate | dateFormat}</div>
         <div class="description">${tweet.content}</div>
+        <div class="extra content">
+          <a>
+            <div class="right floated ui basic blue button" click.trigger="goToUsersTimeline(tweet.tweeter._id)" data-tooltip="Visit this users timeline">
+              <i class="user icon"></i>
+              Visit
+            </div>
+          </a>
+        </div>
       </div>
     </div>
   </div>
