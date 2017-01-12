@@ -2,7 +2,7 @@
   <div style="height: 20px"></div>
   <h2 class='ui dividing header'> Hi ${userName}, this is your Dasboard </h2>
   <require from="../../utils/date-format"></require>
-  <div class="ui one link cards" style="visibility: ${loggedInUser.admin ? 'visible' : 'hidden' }">
+  <div class="ui one cards" style="visibility: ${loggedInUser.admin ? 'visible' : 'hidden; display: none' }; ">
     <div class="card">
       <div class="content">
         <div class="header">You are logged in as an administrator</div>
@@ -36,11 +36,11 @@
           </div>
           <div class="extra content" style="visibility:
               ${loggedInUser._id === tweet.tweeter._id ? 'visible' : 'hidden'}">
-            <a><div class="right floated ui basic red button"
+            <div class="right floated ui basic red button"
                     click.trigger="deleteTweet(tweet._id)" data-tooltip="Delete this tweet permanently">
               <i class="trash icon"></i>
               Delete
-            </div></a>
+            </div>
           </div>
         </div>
       </div>

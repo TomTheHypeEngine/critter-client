@@ -1,6 +1,29 @@
 <template>
   <div style="height: 20px"></div>
-  <div class="ui container">
+  <div class="ui container" style="${loggedInUser.admin ? '' : 'display: none'}">
     <h2 class="ui dividing header">Tweet Management Panel</h2>
+    <div class="ui segment">
+      <h3>Warning! All actions are permanent. Please proceed with caution.</h3>
+    </div>
+    <div class="ui segment">
+      <h3 class="ui dividing header">Global Tweet List</h3>
+      <div class="ui one cards">
+        <div class="card" repeat.for="tweet of globalTweets">
+          <div class="content">
+            <div class="header">${tweet.tweeter.firstName + ' ' + tweet.tweeter.lastName}</div>
+            <div class="meta">${tweet.tweetDate}</div>
+            <div class="description">${tweet.content}</div>
+          </div>
+          <div class="extra content">
+            <div class="ui basic red button">
+              <i class="trash icon"></i>
+              Delete tweet
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-</template>
+  <div class="ui container" style="${loggedInUser.admin ? 'display: none' : ''}">
+    <h3 class="ui header">This is not the site you are looking for</h3>
+  </div>

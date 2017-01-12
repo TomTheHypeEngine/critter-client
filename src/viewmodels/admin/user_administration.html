@@ -1,6 +1,38 @@
 <template>
   <div style="height: 20px"></div>
-  <div class="ui container">
+  <div class="ui container" style="${loggedInUser.admin ? '' : 'display: none'}">
     <h2 class="ui dividing header">User Management Panel</h2>
+    <div class="ui segment">
+      <h3>Warning! All actions are permanent. Please proceed with caution.</h3>
+    </div>
+    <div class="ui segment">
+      <h3 class="ui dividing header">User List</h3>
+      <div class="ui one cards">
+        <div class="card" repeat.for="user of userList">
+          <div class="content">
+            <div class="header">${user.firstName + ' ' + user.lastName}</div>
+            <h4 class="ui sub header">Mail:</h4>
+            <div class="description">${user.email}</div>
+          </div>
+          <div class="extra content">
+            <div class="ui action input">
+              <input type="text" placeholder="New Password...">
+              <button class="ui basic blue button"><i class="lock icon"></i>Reset</button>
+            </div>
+            <div class="ui basic red button">
+              <i class="trash icon"></i>
+              Delete user
+            </div>
+            <div class="ui basic red button">
+              <i class="trash icon"></i>
+              Delete all users tweets
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ui container" style="${loggedInUser.admin ? 'display: none' : ''}">
+    <h3 class="ui header">This is not the site you are looking for</h3>
   </div>
 </template>
