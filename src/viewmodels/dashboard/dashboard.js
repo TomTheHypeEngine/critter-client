@@ -1,18 +1,20 @@
 import {inject} from 'aurelia-framework';
 import TweetService from '../../services/tweet-service';
 import {EventAggregator} from 'aurelia-event-aggregator';
+import {Router} from 'aurelia-router';
 import {UserTimelineLoaded, TimelineUpdate} from '../../services/messages';
 
-@inject(TweetService, EventAggregator)
+@inject(TweetService, EventAggregator, Router)
 export class UserTimeline {
 
   userName = '';
   userTweets = [];
   loggedInUser = null;
 
-  constructor(ts, ea) {
+  constructor(ts, ea, router) {
     this.ts = ts;
     this.ea = ea;
+    this.router = router;
     this.loggedInUser = this.ts.getLoggedInUser();
     this.userName = this.loggedInUser.firstName;
     // this.ts.getUserTweets(this.loggedInUser._id);
@@ -34,5 +36,13 @@ export class UserTimeline {
   deleteTweet(id) {
     console.log(id);
     this.ts.deleteTweet(id);
+  }
+
+  goToAdminUserManagement() {
+    this.router.navigateToRoute('user_management');
+  }
+
+  goToAdminTweetManagement() {
+    this.router.navigateToRoute('tweet_management');
   }
 }
