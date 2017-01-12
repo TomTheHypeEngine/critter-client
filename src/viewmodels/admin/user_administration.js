@@ -2,16 +2,19 @@ import {inject} from 'aurelia-framework';
 import TweetService from '../../services/tweet-service';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {UserUpdate} from '../../services/messages';
+import {DialogService} from 'aurelia-dialog';
+import {Prompt} from '../../utils/prompt/prompt';
 
-@inject(TweetService, EventAggregator)
+@inject(TweetService, EventAggregator, DialogService)
 export class UserAdministration {
 
   userList = [];
   loggedInUser = null;
 
-  constructor(ts, ea) {
+  constructor(ts, ea, ds) {
     this.ts = ts;
     this.ea = ea;
+    this.ds = ds;
     this.loggedInUser = this.ts.loggedInUser;
     this.ea.subscribe(UserUpdate, res => {
       this.userList = res.users;
@@ -23,17 +26,33 @@ export class UserAdministration {
   }
 
   updatePassword(user, pw) {
-    console.log(user);
-    user.newPassword = '';
+    this.ds.open({ viewModel: Prompt, model: 'Reset users password?'}).then(response => {
+      if (!response.wasCancelled) {
+        //TODO
+        user.newPassword = '';
+      } else {
+        console.log('Cancelled');
+      }
+    });
   }
 
   deleteUser(id) {
-    this.ts.deleteUser(id);
-    //todo
+    this.ds.open({ viewModel: Prompt, model: 'Really delete this user?'}).then(response => {
+      if (!response.wasCancelled) {
+        this.ts.deleteUser(id);
+      } else {
+        console.log('Cancelled');
+      }
+    });
   }
 
   deleteUserTweets(id) {
-    this.ts.deleteUserTweets(id);
-    //todo
+    this.ds.open({ viewModel: Prompt, model: 'Delete all Tweets of this user?'}).then(response => {
+      if (!response.wasCancelled) {
+        this.ts.deleteUserTweets(id);
+      } else {
+        console.log('Cancelled');
+      }
+    });
   }
 }

@@ -12,7 +12,7 @@ export function configure(aurelia) {
   aurelia.use
     .standardConfiguration()
     .feature('resources')
-    .plugin('aurelia-validation');
+    .plugin('aurelia-dialog');
 
   if (environment.debug) {
     aurelia.use.developmentLogging();

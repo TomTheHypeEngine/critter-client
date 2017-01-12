@@ -33,7 +33,7 @@ export default class TweetService {
 
   getUserTweets(id) {
     this.ac.get('/api/users/' + id + '/tweets').then(res => {
-      this.ea.publish(new UserTimelineLoaded(res.content.reverse()));
+      this.ea.publish(new UserTimelineLoaded(res.content));
     });
   }
 
@@ -47,7 +47,6 @@ export default class TweetService {
   getTweets() {
     this.ac.get('/api/tweets').then(res => {
       this.tweets = res.content;
-      this.tweets = this.tweets.reverse(); //Reverse tweets to show latest tweet first
       this.ea.publish(new TimelineUpdate(this.tweets));
     });
   }
