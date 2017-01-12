@@ -21,4 +21,9 @@ export class TweetAdministration {
   attached() {
     this.ts.getTweets();
   }
+
+  deleteTweet(id) {
+    this.ts.deleteTweet(id);
+    this.ts.getTweets();
+  }
 }

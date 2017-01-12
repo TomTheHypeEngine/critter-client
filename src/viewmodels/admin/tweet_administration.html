@@ -15,7 +15,7 @@
             <div class="description">${tweet.content}</div>
           </div>
           <div class="extra content">
-            <div class="ui basic red button">
+            <div class="ui basic red button" click.trigger="deleteTweet(tweet._id)">
               <i class="trash icon"></i>
               Delete tweet
             </div>

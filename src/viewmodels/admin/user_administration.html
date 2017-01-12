@@ -16,14 +16,17 @@
           </div>
           <div class="extra content">
             <div class="ui action input">
-              <input type="text" placeholder="New Password...">
-              <button class="ui basic blue button"><i class="lock icon"></i>Reset</button>
+              <input type="text" placeholder="New Password..." value.bind="user.newPassword">
+              <button class="ui basic blue button" click.trigger="updatePassword(user)">
+                <i class="lock icon"></i>
+                Reset
+              </button>
             </div>
-            <div class="ui basic red button">
+            <div class="ui basic red button" click.trigger="deleteUser(user._id)">
               <i class="trash icon"></i>
               Delete user
             </div>
-            <div class="ui basic red button">
+            <div class="ui basic red button" click.trigger="deleteUserTweets(user._id)">
               <i class="trash icon"></i>
               Delete all users tweets
             </div>

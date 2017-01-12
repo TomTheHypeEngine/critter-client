@@ -21,4 +21,16 @@ export class UserAdministration {
   attached() {
     this.ts.getUsers();
   }
+
+  updatePassword(user, pw) {
+    console.log(user);
+  }
+
+  deleteUser(id) {
+    //todo
+  }
+
+  deleteUserTweets(id) {
+    //todo
+  }
 }
