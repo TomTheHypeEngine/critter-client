@@ -3,17 +3,20 @@ import TweetService from '../../services/tweet-service';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {Router} from 'aurelia-router';
 import {UserTimelineLoaded, TimelineUpdate} from '../../services/messages';
+import {DialogService} from 'aurelia-dialog';
+import {Prompt} from '../../utils/prompt/prompt';
 
-@inject(TweetService, EventAggregator, Router)
+@inject(TweetService, EventAggregator, Router, DialogService)
 export class UserTimeline {
 
   userName = '';
   userTweets = [];
   loggedInUser = null;
 
-  constructor(ts, ea, router) {
+  constructor(ts, ea, router, ds) {
     this.ts = ts;
     this.ea = ea;
+    this.ds = ds;
     this.router = router;
     this.loggedInUser = this.ts.getLoggedInUser();
     this.userName = this.loggedInUser.firstName;
@@ -34,8 +37,13 @@ export class UserTimeline {
   }
 
   deleteTweet(id) {
-    console.log(id);
-    this.ts.deleteTweet(id);
+    this.ds.open({ viewModel: Prompt, model: 'Really delete this tweet?'}).then(response => {
+      if (!response.wasCancelled) {
+        this.ts.deleteTweet(id);
+      } else {
+        console.log('Cancelled');
+      }
+    });
   }
 
   goToAdminUserManagement() {

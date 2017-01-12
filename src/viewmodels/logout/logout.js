@@ -1,18 +1,21 @@
 import TweetService from '../../services/tweet-service';
 import {inject} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {ChangeRouteAfterLogout} from '../../services/messages'
+import {Router} from 'aurelia-router';
 
-@inject(TweetService, EventAggregator)
+
+@inject(TweetService, EventAggregator, Router)
 export class Logout {
 
-  constructor(tweetService, ea) {
-    this.ts = tweetService;
+  constructor(ts, ea, router) {
+    this.ts = ts;
     this.ea = ea;
+    this.router = router
   }
 
   logout() {
     this.ts.logout();
+    this.router.navigateToRoute('');
   }
 }
 
