@@ -44,6 +44,14 @@ export default class TweetService {
     });
   }
 
+  resetUserPassword(user) {
+    console.log(user);
+    this.ac.post('/api/users/' + user._id + '/password', user.newPassword).then(res =>{
+      this.getUsers();
+      console.log(res.code);
+    });
+  }
+
   getTweets() {
     this.ac.get('/api/tweets').then(res => {
       this.tweets = res.content;
