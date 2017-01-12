@@ -8,14 +8,14 @@
         <div class="header">${tweet.tweeter.firstName} ${tweet.tweeter.lastName}</div>
         <div class="meta">Tweeted: ${tweet.tweetDate | dateFormat}</div>
         <div class="description">${tweet.content}</div>
-        <div class="extra content" style="visibility: ${loggedInUser._id === userTweets[0].tweeter._id ? 'visible' : 'hidden'}">
-          <a>
-            <div class="right floated ui basic red button" click.trigger="deleteTweet(tweet._id)" data-tooltip="Delete this tweet permanently">
-              <i class="trash icon"></i>
-              Delete
-            </div>
-          </a>
-        </div>
+      </div>
+      <div class="extra content" style="visibility: ${loggedInUser._id === userTweets[0].tweeter._id ? 'visible' : 'hidden'}">
+        <a>
+          <div class="right floated ui basic red button" click.trigger="deleteTweet(tweet._id)" data-tooltip="Delete this tweet permanently">
+            <i class="trash icon"></i>
+            Delete
+          </div>
+        </a>
       </div>
     </div>
   </div>

@@ -13,7 +13,7 @@ export class Signup {
 
   constructor(ts, router) {
     this.ts = ts;
-    this.router = router
+    this.router = router;
   }
 
   register(e) {

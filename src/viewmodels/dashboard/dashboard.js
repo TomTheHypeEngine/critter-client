@@ -14,12 +14,13 @@ export class UserTimeline {
     this.ts = ts;
     this.ea = ea;
     this.loggedInUser = this.ts.getLoggedInUser();
+    this.userName = this.loggedInUser.firstName;
     // this.ts.getUserTweets(this.loggedInUser._id);
     ea.subscribe(UserTimelineLoaded, res => {
       this.userTweets = res.data;
-      if (this.userTweets.length) {
-        this.userName = this.userTweets[0].tweeter.firstName + ' ' + this.userTweets[0].tweeter.lastName;
-      }
+      // if (this.userTweets.length) {
+      //   this.userName = this.userTweets[0].tweeter.firstName + ' ' + this.userTweets[0].tweeter.lastName;
+      // }
     });
     ea.subscribe(TimelineUpdate, res => {
       this.ts.getUserTweets(this.loggedInUser._id);
