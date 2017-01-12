@@ -11,9 +11,9 @@ export class GlobalTimeline {
   router = null;
 
   constructor(ts, ea, router) {
-    this.tweetService = ts;
+    this.ts = ts;
     this.router = router;
-    this.tweetService.getTweets();
+    this.ts.getTweets();
     ea.subscribe(TimelineUpdate, msg => {
       this.tweets = msg.tweets;
     });

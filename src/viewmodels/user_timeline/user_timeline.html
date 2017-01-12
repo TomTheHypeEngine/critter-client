@@ -6,7 +6,7 @@
     <div class="ui card" repeat.for="tweet of userTweets">
       <div class="content">
         <div class="header">${tweet.tweeter.firstName} ${tweet.tweeter.lastName}</div>
-        <div class="meta">Posted on: ${tweet.tweetDate | dateFormat}</div>
+        <div class="meta">Tweeted: ${tweet.tweetDate | dateFormat}</div>
         <div class="description">${tweet.content}</div>
         <div class="extra content" style="visibility: ${loggedInUser._id === userTweets[0].tweeter._id ? 'visible' : 'hidden'}">
           <a>
