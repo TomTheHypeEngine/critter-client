@@ -102,7 +102,7 @@ define('home',['exports', 'aurelia-framework'], function (exports, _aureliaFrame
     }
 
     Home.prototype.configureRouter = function configureRouter(config, router) {
-      config.map([{ route: 'dashboard', name: 'dashboard', moduleId: 'viewmodels/dashboard/dashboard', nav: true, title: 'Personal Dashboard' }, { route: ['tweet_timeline', ''], name: 'tweet_timeline', moduleId: 'viewmodels/tweet_timeline/tweet_timeline', nav: true, title: 'Global Tweets' }, { route: 'user/:id/timeline', name: 'user_timeline', moduleId: 'viewmodels/user_timeline/user_timeline', nav: false, title: 'User Timeline' }, { route: 'account', name: 'account', moduleId: 'viewmodels/account_settings/account_settings', nav: true, title: 'Account' }, { route: 'logout', name: 'logout', moduleId: 'viewmodels/logout/logout', nav: true, title: 'Logout' }]);
+      config.map([{ route: 'dashboard', name: 'dashboard', moduleId: 'viewmodels/dashboard/dashboard', nav: true, title: 'Personal Dashboard' }, { route: ['tweet_timeline', ''], name: 'tweet_timeline', moduleId: 'viewmodels/tweet_timeline/tweet_timeline', nav: true, title: 'Global Tweets' }, { route: 'account', name: 'account', moduleId: 'viewmodels/account_settings/account_settings', nav: true, title: 'Account' }, { route: 'logout', name: 'logout', moduleId: 'viewmodels/logout/logout', nav: true, title: 'Logout' }, { route: 'user/:id/timeline', name: 'user_timeline', moduleId: 'viewmodels/user_timeline/user_timeline', nav: false, title: 'User Timeline' }, { route: 'admin/user_management', name: 'user_management', moduleId: 'viewmodels/admin/user_administration', nav: false }, { route: 'admin/tweet_management', name: 'tweet_management', moduleId: 'viewmodels/admin/tweet_administration', nav: false }]);
 
       config.mapUnknownRoutes(function (instruction) {
         return 'dashboard';
@@ -411,7 +411,6 @@ define('services/tweet-service',['exports', 'aurelia-framework', './fixtures', '
       this.ac.post('/api/tweets', tweet).then(function (res) {
         var returnedTweets = res.content;
         _this6.tweets.push(returnedTweets);
-        console.log('Tweet created with tweetText ' + content);
         _this6.getTweets();
       });
     };
@@ -420,8 +419,7 @@ define('services/tweet-service',['exports', 'aurelia-framework', './fixtures', '
       var _this7 = this;
 
       this.ac.delete('/api/tweets/' + id).then(function (res) {
-        console.log('Tweet deleted');
-        _this7.getUserTweets(_this7.loggedInUser._id);
+        _this7.getTweets();
       });
     };
 
@@ -437,6 +435,22 @@ define('services/tweet-service',['exports', 'aurelia-framework', './fixtures', '
         password: password
       };
       this.ac.post('/api/users', newUser);
+    };
+
+    TweetService.prototype.deleteUser = function deleteUser(id) {
+      var _this8 = this;
+
+      if (this.loggedInUser.admin) {
+        this.ac.delete('/api/users/' + id).then(function () {
+          _this8.getUsers();
+        });
+      }
+    };
+
+    TweetService.prototype.deleteUserTweets = function deleteUserTweets(id) {
+      if (this.loggedInUser.admin) {
+        this.ac.delete('/api/users/' + id + '/tweets');
+      }
     };
 
     TweetService.prototype.login = function login(email, password) {
@@ -496,7 +510,7 @@ define('utils/date-format',['exports', 'moment'], function (exports, _moment) {
     }
 
     DateFormatValueConverter.prototype.toView = function toView(value) {
-      return (0, _moment2.default)(value).format('hh:mm:ss DD.MM.YYYY');
+      return (0, _moment2.default)(value).format('HH:mm:ss DD.MM.YYYY');
     };
 
     return DateFormatValueConverter;
@@ -541,9 +555,9 @@ define('viewmodels/account_settings/account_settings',['exports', 'aurelia-frame
     }
 
     AccountSettings.prototype.updateAccount = function updateAccount(e) {
-      if (this.repeatPassword === this.newPassword && oldPassword === user.password) {
+      if (this.repeatPassword === this.newPassword) {
+        this.user.oldPassword = this.oldPassword;
         this.user.password = this.newPassword;
-        this.ts.loggedInUser = this.user;
         this.ts.updateUser(this.user);
       }
       this.repeatPassword = '';
@@ -554,7 +568,121 @@ define('viewmodels/account_settings/account_settings',['exports', 'aurelia-frame
     return AccountSettings;
   }()) || _class);
 });
-define('viewmodels/dashboard/dashboard',['exports', 'aurelia-framework', '../../services/tweet-service', 'aurelia-event-aggregator', '../../services/messages'], function (exports, _aureliaFramework, _tweetService, _aureliaEventAggregator, _messages) {
+define('viewmodels/admin/tweet_administration',['exports', 'aurelia-framework', '../../services/tweet-service', 'aurelia-event-aggregator', '../../services/messages'], function (exports, _aureliaFramework, _tweetService, _aureliaEventAggregator, _messages) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.TweetAdministration = undefined;
+
+  var _tweetService2 = _interopRequireDefault(_tweetService);
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : {
+      default: obj
+    };
+  }
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _dec, _class;
+
+  var TweetAdministration = exports.TweetAdministration = (_dec = (0, _aureliaFramework.inject)(_tweetService2.default, _aureliaEventAggregator.EventAggregator), _dec(_class = function () {
+    function TweetAdministration(ts, ea) {
+      var _this = this;
+
+      _classCallCheck(this, TweetAdministration);
+
+      this.loggedInUser = null;
+      this.globalTweets = [];
+
+      this.ts = ts;
+      this.ea = ea;
+      this.loggedInUser = this.ts.loggedInUser;
+      this.ea.subscribe(_messages.TimelineUpdate, function (res) {
+        _this.globalTweets = res.tweets;
+      });
+    }
+
+    TweetAdministration.prototype.attached = function attached() {
+      this.ts.getTweets();
+    };
+
+    TweetAdministration.prototype.deleteTweet = function deleteTweet(id) {
+      this.ts.deleteTweet(id);
+      this.ts.getTweets();
+    };
+
+    return TweetAdministration;
+  }()) || _class);
+});
+define('viewmodels/admin/user_administration',['exports', 'aurelia-framework', '../../services/tweet-service', 'aurelia-event-aggregator', '../../services/messages'], function (exports, _aureliaFramework, _tweetService, _aureliaEventAggregator, _messages) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.UserAdministration = undefined;
+
+  var _tweetService2 = _interopRequireDefault(_tweetService);
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : {
+      default: obj
+    };
+  }
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _dec, _class;
+
+  var UserAdministration = exports.UserAdministration = (_dec = (0, _aureliaFramework.inject)(_tweetService2.default, _aureliaEventAggregator.EventAggregator), _dec(_class = function () {
+    function UserAdministration(ts, ea) {
+      var _this = this;
+
+      _classCallCheck(this, UserAdministration);
+
+      this.userList = [];
+      this.loggedInUser = null;
+
+      this.ts = ts;
+      this.ea = ea;
+      this.loggedInUser = this.ts.loggedInUser;
+      this.ea.subscribe(_messages.UserUpdate, function (res) {
+        _this.userList = res.users;
+      });
+    }
+
+    UserAdministration.prototype.attached = function attached() {
+      this.ts.getUsers();
+    };
+
+    UserAdministration.prototype.updatePassword = function updatePassword(user, pw) {
+      console.log(user);
+      user.newPassword = '';
+    };
+
+    UserAdministration.prototype.deleteUser = function deleteUser(id) {
+      this.ts.deleteUser(id);
+    };
+
+    UserAdministration.prototype.deleteUserTweets = function deleteUserTweets(id) {
+      this.ts.deleteUserTweets(id);
+    };
+
+    return UserAdministration;
+  }()) || _class);
+});
+define('viewmodels/dashboard/dashboard',['exports', 'aurelia-framework', '../../services/tweet-service', 'aurelia-event-aggregator', 'aurelia-router', '../../services/messages'], function (exports, _aureliaFramework, _tweetService, _aureliaEventAggregator, _aureliaRouter, _messages) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -578,8 +706,8 @@ define('viewmodels/dashboard/dashboard',['exports', 'aurelia-framework', '../../
 
   var _dec, _class;
 
-  var UserTimeline = exports.UserTimeline = (_dec = (0, _aureliaFramework.inject)(_tweetService2.default, _aureliaEventAggregator.EventAggregator), _dec(_class = function () {
-    function UserTimeline(ts, ea) {
+  var UserTimeline = exports.UserTimeline = (_dec = (0, _aureliaFramework.inject)(_tweetService2.default, _aureliaEventAggregator.EventAggregator, _aureliaRouter.Router), _dec(_class = function () {
+    function UserTimeline(ts, ea, router) {
       var _this = this;
 
       _classCallCheck(this, UserTimeline);
@@ -590,13 +718,12 @@ define('viewmodels/dashboard/dashboard',['exports', 'aurelia-framework', '../../
 
       this.ts = ts;
       this.ea = ea;
+      this.router = router;
       this.loggedInUser = this.ts.getLoggedInUser();
+      this.userName = this.loggedInUser.firstName;
 
       ea.subscribe(_messages.UserTimelineLoaded, function (res) {
         _this.userTweets = res.data;
-        if (_this.userTweets.length) {
-          _this.userName = _this.userTweets[0].tweeter.firstName + ' ' + _this.userTweets[0].tweeter.lastName;
-        }
       });
       ea.subscribe(_messages.TimelineUpdate, function (res) {
         _this.ts.getUserTweets(_this.loggedInUser._id);
@@ -610,6 +737,14 @@ define('viewmodels/dashboard/dashboard',['exports', 'aurelia-framework', '../../
     UserTimeline.prototype.deleteTweet = function deleteTweet(id) {
       console.log(id);
       this.ts.deleteTweet(id);
+    };
+
+    UserTimeline.prototype.goToAdminUserManagement = function goToAdminUserManagement() {
+      this.router.navigateToRoute('user_management');
+    };
+
+    UserTimeline.prototype.goToAdminTweetManagement = function goToAdminTweetManagement() {
+      this.router.navigateToRoute('tweet_management');
     };
 
     return UserTimeline;
@@ -648,9 +783,9 @@ define('viewmodels/global_timeline/global_timeline',['exports', 'aurelia-framewo
       this.tweets = [];
       this.router = null;
 
-      this.tweetService = ts;
+      this.ts = ts;
       this.router = router;
-      this.tweetService.getTweets();
+      this.ts.getTweets();
       ea.subscribe(_messages.TimelineUpdate, function (msg) {
         _this.tweets = msg.tweets;
       });
@@ -694,11 +829,11 @@ define('viewmodels/login/login',['exports', 'aurelia-framework', '../../services
       this.email = 'marge@simpson.com';
       this.password = 'secret';
 
-      this.tweetService = ts;
+      this.ts = ts;
     }
 
     Login.prototype.login = function login(e) {
-      this.tweetService.login(this.email, this.password);
+      this.ts.login(this.email, this.password);
     };
 
     return Login;
@@ -732,18 +867,18 @@ define('viewmodels/logout/logout',['exports', '../../services/tweet-service', 'a
     function Logout(tweetService, ea) {
       _classCallCheck(this, Logout);
 
-      this.tweetService = tweetService;
+      this.ts = tweetService;
       this.ea = ea;
     }
 
     Logout.prototype.logout = function logout() {
-      this.tweetService.logout();
+      this.ts.logout();
     };
 
     return Logout;
   }()) || _class);
 });
-define('viewmodels/signup/signup',['exports', 'aurelia-framework', '../../services/tweet-service'], function (exports, _aureliaFramework, _tweetService) {
+define('viewmodels/signup/signup',['exports', 'aurelia-framework', '../../services/tweet-service', 'aurelia-router'], function (exports, _aureliaFramework, _tweetService, _aureliaRouter) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -767,8 +902,8 @@ define('viewmodels/signup/signup',['exports', 'aurelia-framework', '../../servic
 
   var _dec, _class;
 
-  var Signup = exports.Signup = (_dec = (0, _aureliaFramework.inject)(_tweetService2.default), _dec(_class = function () {
-    function Signup(ts) {
+  var Signup = exports.Signup = (_dec = (0, _aureliaFramework.inject)(_tweetService2.default, _aureliaRouter.Router), _dec(_class = function () {
+    function Signup(ts, router) {
       _classCallCheck(this, Signup);
 
       this.firstName = 'Marge';
@@ -777,14 +912,15 @@ define('viewmodels/signup/signup',['exports', 'aurelia-framework', '../../servic
       this.password = 'secret';
       this.repeatPassword = 'secret';
 
-      this.tweetService = ts;
+      this.ts = ts;
+      this.router = router;
     }
 
     Signup.prototype.register = function register(e) {
-      this.showSignup = false;
       if (this.password === this.repeatPassword && this.firstName && this.lastName && this.email && this.password) {
-        this.tweetService.register(this.firstName, this.lastName, this.email, this.password);
-        this.tweetService.login(this.email, this.password);
+        this.ts.register(this.firstName, this.lastName, this.email, this.password);
+        this.ts.login(this.email, this.password);
+        this.router.navigateToRoute('login');
       }
     };
 
@@ -821,12 +957,12 @@ define('viewmodels/tweet/tweet',['exports', 'aurelia-framework', '../../services
 
       this.tweetText = '';
 
-      this.tweetService = ts;
+      this.ts = ts;
     }
 
     Login.prototype.makeTweet = function makeTweet() {
       if (this.tweetText !== '') {
-        this.tweetService.tweet(this.tweetText);
+        this.ts.tweet(this.tweetText);
         this.tweetText = '';
       } else {}
     };
@@ -912,13 +1048,15 @@ define('viewmodels/user_timeline/user_timeline',['exports', 'aurelia-framework',
 define('text!app.html', ['module'], function(module) { module.exports = "<template>\n <require from=\"nav-bar.html\"></require>\n   <div class=\"ui grid\" style=\"height: 100% !important\">\n     <div class=\"four wide column\">\n       <nav-bar router.bind=\"router\"></nav-bar>\n     </div>\n     <div class=\"ten wide column\">\n       <router-view></router-view>\n     </div>\n   </div>\n</template>\n"; });
 define('text!home.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"nav-bar.html\"></require>\n  <div class=\"ui grid\" style=\"height: 100% !important\">\n    <div class=\"four wide column\">\n      <nav-bar router.bind=\"router\"></nav-bar>\n    </div>\n    <div class=\"ten wide column\">\n      <router-view></router-view>\n    </div>\n  </div>\n</template>\n"; });
 define('text!nav-bar.html', ['module'], function(module) { module.exports = "<template bindable=\"router\">\n  <div class=\"ui vertical inverted sticky menu bottom\" style=\"height: 100% !important\">\n    <h2 class=\"header item\"><a href=\"/#\"> Critter - a Twitter clone </a></h2>\n    <div class=\"ui divider\"></div>\n    <div class=\"right menu\">\n      <div class=\"ui items\" repeat.for=\"row of router.navigation\">\n        <a class=\"${row.isActive ? 'active' : ''} item\"  href.bind=\"row.href\">${row.title}</a>\n      </div>\n    </div>\n  </div>\n</template>\n"; });
-define('text!viewmodels/account_settings/account_settings.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"height 20px\"></div>\n    <div class=\"ui raised segment\">\n      <h3 class=\"ui header\">Your current account data:</h3>\n        <div class=\"ui segment\">\n          <h4 class=\"ui header\">First Name</h4>\n          <p>${user.firstName}</p>\n        </div>\n        <div class=\"ui segment\">\n          <h4 class=\"ui header\">Last Name</h4>\n          <p>${user.lastName}</p>\n        </div>\n        <div class=\"ui segment\">\n          <h4 class=\"ui header\">Email</h4>\n          <p>${user.email}</p>\n      </div>\n    </div>\n\n    <form submit.delegate=\"updateAccount($event)\" class=\"ui raised segment form\">\n      <h3 class=\"ui header\">Update your account data:</h3>\n      <div class=\"two fields\">\n        <div class=\"field\">\n          <label>New First Name</label>\n          <input placeholder=\"First Name\" type=\"text\" value.bind=\"user.firstName\">\n        </div>\n        <div class=\"field\">\n          <label>New Last Name</label>\n          <input placeholder=\"Last Name\" type=\"text\" value.bind=\"user.lastName\">\n        </div>\n      </div>\n\n      <div class=\"two fields\">\n        <div class=\"field\">\n          <label>New Email</label>\n          <input placeholder=\"Email\" type=\"text\" value.bind=\"user.email\">\n        </div>\n        <div class=\"field\">\n          <label>Old Password</label>\n          <input type=\"password\" value.bind=\"oldPassword\">\n        </div>\n      </div>\n      <div class=\"two fields\">\n        <div class=\"field\">\n          <label>New Password</label>\n          <input type=\"password\" value.bind=\"newPassword\">\n        </div>\n        <div class=\"field\">\n          <label>Confirm New Password</label>\n          <input type=\"password\" value.bind=\"repeatPassword\">\n        </div>\n      </div>\n      <button class=\"ui ${repeatPassword === user.password ? 'blue' : 'red'} submit button\">Submit</button>\n    </form>\n\n</template>\n"; });
-define('text!viewmodels/dashboard/dashboard.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"height: 20px\"></div>\n  <h3 class='ui dividing header'> Hi ${userName}, this is your Dasboard </h3>\n  <require from=\"../../utils/date-format\"></require>\n  <compose view-model=\"../tweet/tweet\"></compose>\n  <div style=\"height: 20px\"></div>\n  <div class=\"ui container\">\n    <div class=\"ui segment\">\n      <h3 class=\"ui dividing header\">Your Timeline</h3>\n      <div class=\"ui one link cards\">\n        <div class=\"ui card\" repeat.for=\"tweet of userTweets\">\n          <div class=\"content\">\n            <div class=\"header\">${tweet.tweeter.firstName} ${tweet.tweeter.lastName}</div>\n            <div class=\"meta\">Posted on: ${tweet.tweetDate | dateFormat}</div>\n            <div class=\"description\">${tweet.content}</div>\n            <div class=\"extra content\" style=\"visibility:\n              ${loggedInUser._id === userTweets[0].tweeter._id ? 'visible' : 'hidden'}\">\n              <a><div class=\"right floated ui basic red button\"\n                      click.trigger=\"deleteTweet(tweet._id)\" data-tooltip=\"Delete this tweet permanently\">\n                  <i class=\"trash icon\"></i>\n                  Delete\n                </div></a>\n            </div>\n          </div>\n        </div>\n      </div>\n      <div style=\"height: 20px\"></div>\n    </div>\n  </div>\n</template>\n"; });
-define('text!viewmodels/global_timeline/global_timeline.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../../utils/date-format\"></require>\n  <div class=\"ui one link cards\">\n    <div class=\"ui card\" repeat.for=\"tweet of tweets\">\n      <div class=\"content\">\n        <div class=\"header\">${tweet.tweeter.firstName} ${tweet.tweeter.lastName}</div>\n        <div class=\"meta\">Posted on: ${tweet.tweetDate | dateFormat}</div>\n        <div class=\"description\">${tweet.content}</div>\n        <div class=\"extra content\">\n          <a>\n            <div class=\"right floated ui basic blue button\" click.trigger=\"goToUsersTimeline(tweet.tweeter._id)\" data-tooltip=\"Visit this users timeline\">\n              <i class=\"user icon\"></i>\n              Visit\n            </div>\n          </a>\n        </div>\n      </div>\n    </div>\n  </div>\n</template>\n"; });
+define('text!viewmodels/account_settings/account_settings.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"height 20px\"></div>\n    <div class=\"ui raised segment\">\n      <h3 class=\"ui header\">Your current account data:</h3>\n        <div class=\"ui segment\">\n          <h4 class=\"ui header\">First Name</h4>\n          <p>${user.firstName}</p>\n        </div>\n        <div class=\"ui segment\">\n          <h4 class=\"ui header\">Last Name</h4>\n          <p>${user.lastName}</p>\n        </div>\n        <div class=\"ui segment\">\n          <h4 class=\"ui header\">Email</h4>\n          <p>${user.email}</p>\n      </div>\n    </div>\n\n    <form submit.delegate=\"updateAccount($event)\" class=\"ui raised segment form\">\n      <h3 class=\"ui header\">Update your account data:</h3>\n      <div class=\"two fields\">\n        <div class=\"field\">\n          <label>New First Name</label>\n          <input placeholder=\"First Name\" type=\"text\" value.bind=\"user.firstName\">\n        </div>\n        <div class=\"field\">\n          <label>New Last Name</label>\n          <input placeholder=\"Last Name\" type=\"text\" value.bind=\"user.lastName\">\n        </div>\n      </div>\n\n      <div class=\"two fields\">\n        <div class=\"field\">\n          <label>New Email</label>\n          <input placeholder=\"Email\" type=\"text\" value.bind=\"user.email\">\n        </div>\n        <div class=\"field\">\n          <label>Old Password</label>\n          <input type=\"password\" value.bind=\"oldPassword\">\n        </div>\n      </div>\n      <div class=\"two fields\">\n        <div class=\"field\">\n          <label>New Password</label>\n          <input type=\"password\" value.bind=\"newPassword\">\n        </div>\n        <div class=\"field\">\n          <label>Confirm New Password</label>\n          <input type=\"password\" value.bind=\"repeatPassword\">\n        </div>\n      </div>\n      <button class=\"ui ${repeatPassword === newPassword ? 'blue' : 'red'} submit button\">Submit</button>\n    </form>\n\n</template>\n"; });
+define('text!viewmodels/admin/tweet_administration.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"height: 20px\"></div>\n  <div class=\"ui container\" style=\"${loggedInUser.admin ? '' : 'display: none'}\">\n    <h2 class=\"ui dividing header\">Tweet Management Panel</h2>\n    <div class=\"ui segment\">\n      <h3>Warning! All actions are permanent. Please proceed with caution.</h3>\n    </div>\n    <div class=\"ui segment\">\n      <h3 class=\"ui dividing header\">Global Tweet List</h3>\n      <div class=\"ui one cards\">\n        <div class=\"card\" repeat.for=\"tweet of globalTweets\">\n          <div class=\"content\">\n            <div class=\"header\">${tweet.tweeter.firstName + ' ' + tweet.tweeter.lastName}</div>\n            <div class=\"meta\">${tweet.tweetDate}</div>\n            <div class=\"description\">${tweet.content}</div>\n          </div>\n          <div class=\"extra content\">\n            <div class=\"ui basic red button\" click.trigger=\"deleteTweet(tweet._id)\">\n              <i class=\"trash icon\"></i>\n              Delete tweet\n            </div>\n          </div>\n        </div>\n      </div>\n    </div>\n  </div>\n  <div class=\"ui container\" style=\"${loggedInUser.admin ? 'display: none' : ''}\">\n    <h3 class=\"ui header\">This is not the site you are looking for</h3>\n  </div>\n"; });
+define('text!viewmodels/admin/user_administration.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"height: 20px\"></div>\n  <div class=\"ui container\" style=\"${loggedInUser.admin ? '' : 'display: none'}\">\n    <h2 class=\"ui dividing header\">User Management Panel</h2>\n    <div class=\"ui segment\">\n      <h3>Warning! All actions are permanent. Please proceed with caution.</h3>\n    </div>\n    <div class=\"ui segment\">\n      <h3 class=\"ui dividing header\">User List</h3>\n      <div class=\"ui one cards\">\n        <div class=\"card\" repeat.for=\"user of userList\">\n          <div class=\"content\">\n            <div class=\"header\">${user.firstName + ' ' + user.lastName}</div>\n            <h4 class=\"ui sub header\">Mail:</h4>\n            <div class=\"description\">${user.email}</div>\n          </div>\n          <div class=\"extra content\">\n            <div class=\"ui action input\">\n              <input type=\"text\" placeholder=\"New Password...\" value.bind=\"user.newPassword\">\n              <button class=\"ui basic blue button\" click.trigger=\"updatePassword(user)\">\n                <i class=\"lock icon\"></i>\n                Reset\n              </button>\n            </div>\n            <div class=\"ui basic red button\" click.trigger=\"deleteUser(user._id)\">\n              <i class=\"trash icon\"></i>\n              Delete user\n            </div>\n            <div class=\"ui basic red button\" click.trigger=\"deleteUserTweets(user._id)\">\n              <i class=\"trash icon\"></i>\n              Delete all users tweets\n            </div>\n          </div>\n        </div>\n      </div>\n    </div>\n  </div>\n  <div class=\"ui container\" style=\"${loggedInUser.admin ? 'display: none' : ''}\">\n    <h3 class=\"ui header\">This is not the site you are looking for</h3>\n  </div>\n</template>\n"; });
+define('text!viewmodels/dashboard/dashboard.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"height: 20px\"></div>\n  <h2 class='ui dividing header'> Hi ${userName}, this is your Dasboard </h2>\n  <require from=\"../../utils/date-format\"></require>\n  <div class=\"ui one cards\" style=\"visibility: ${loggedInUser.admin ? 'visible' : 'hidden; display: none' }; \">\n    <div class=\"card\">\n      <div class=\"content\">\n        <div class=\"header\">You are logged in as an administrator</div>\n        <div class=\"description\">Here you have access to the admin tools</div>\n      </div>\n      <div class=\"extra content\">\n        <div class=\"ui basic blue button\" click.trigger=\"goToAdminUserManagement()\" data-tooltip=\"Manage Registered Users\">\n          <i class=\"users icon\"></i>\n          User Management\n        </div>\n        <div class=\"ui basic blue button\" click.trigger=\"goToAdminTweetManagement()\" data-tooltip=\"Manage all Tweets\">\n          <i class=\"comment icon\"></i>\n            Tweet Management\n          </i>\n        </div>\n      </div>\n    </div>\n    <div style=\"height: 20px\"></div>\n  </div>\n  <compose view-model=\"../tweet/tweet\"></compose>\n  <div style=\"height: 20px\"></div>\n  <div class=\"ui container\">\n    <div class=\"ui segment\">\n      <h3 class=\"ui dividing header\">Your Timeline</h3>\n      <div class=\"ui one link cards\">\n        <div class=\"ui card\" repeat.for=\"tweet of userTweets\">\n          <div class=\"content\">\n            <div class=\"header\">${tweet.tweeter.firstName} ${tweet.tweeter.lastName}</div>\n            <div class=\"meta\">Tweeted: ${tweet.tweetDate | dateFormat}</div>\n            <div class=\"description\">${tweet.content}</div>\n          </div>\n          <div class=\"extra content\" style=\"visibility:\n              ${loggedInUser._id === tweet.tweeter._id ? 'visible' : 'hidden'}\">\n            <div class=\"right floated ui basic red button\"\n                    click.trigger=\"deleteTweet(tweet._id)\" data-tooltip=\"Delete this tweet permanently\">\n              <i class=\"trash icon\"></i>\n              Delete\n            </div>\n          </div>\n        </div>\n      </div>\n      <div style=\"height: 20px\"></div>\n    </div>\n  </div>\n</template>\n"; });
+define('text!viewmodels/global_timeline/global_timeline.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../../utils/date-format\"></require>\n  <div class=\"ui one link cards\">\n    <div class=\"ui card\" repeat.for=\"tweet of tweets\">\n      <div class=\"content\">\n        <div class=\"header\">${tweet.tweeter.firstName} ${tweet.tweeter.lastName}</div>\n        <div class=\"meta\">Tweeted: ${tweet.tweetDate | dateFormat}</div>\n        <div class=\"description\">${tweet.content}</div>\n      </div>\n      <div class=\"extra content\">\n        <a>\n          <div class=\"right floated ui basic blue button\" click.trigger=\"goToUsersTimeline(tweet.tweeter._id)\" data-tooltip=\"Visit this users timeline\">\n            <i class=\"user icon\"></i>\n            Visit\n          </div>\n        </a>\n      </div>\n    </div>\n  </div>\n</template>\n"; });
 define('text!viewmodels/login/login.html', ['module'], function(module) { module.exports = "<template>\n\n  <div class=\"ui text container\">\n    <form submit.delegate=\"login($event)\" class=\"ui segment form\">\n      <h3 class=\"ui center aligned header\">Log-in to Critter</h3>\n      <div class=\"field\">\n        <label>Email</label> <input placeholder=\"Email\" value.bind=\"email\"/>\n      </div>\n      <div class=\"field\">\n        <label>Password </label> <input type=\"password\" value.bind=\"password\"/>\n      </div>\n      <div class=\"ui grid\">\n        <div class=\"four column row\">\n          <div class=\"left floated column\">\n            <button class=\"ui blue submit button\">Login</button>\n          </div>\n          <div class=\"right center aligned floated column\">\n            <a href=\"#/signup\">Sign up here</a>\n          </div>\n        </div>\n      </div>\n    </form>\n  </div>\n\n</template>\n"; });
 define('text!viewmodels/logout/logout.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"height: 20px\"></div>\n  <form submit.delegate=\"logout($event)\" class=\"ui segment form\">\n    <h3 class=\"ui header\">Are you sure you want to log out?</h3>\n    <button class=\"ui blue submit button\">Logout</button>\n  </form>\n\n</template>\n"; });
 define('text!viewmodels/signup/signup.html', ['module'], function(module) { module.exports = "<template>\n  <form submit.delegate=\"register($event)\" class=\"ui segment form\">\n    <h3 class=\"ui header\">Register a new Account</h3>\n    <div class=\"two fields\">\n      <div class=\"field\">\n        <label>First Name ${firstName ? '' : '- must not be empty'}</label>\n        <input placeholder=\"First Name\" type=\"text\" value.bind=\"firstName\">\n      </div>\n      <div class=\"field\">\n        <label>Last Name ${lastName ? '' : '- must not be empty'}</label>\n        <input placeholder=\"Last Name\" type=\"text\" value.bind=\"lastName\">\n      </div>\n    </div>\n    <div class=\"field\">\n      <label>Email ${email ? '' : '- must not be empty'}</label>\n      <input placeholder=\"Email\" type=\"text\" value.bind=\"email\">\n    </div>\n    <div class=\"two fields\">\n      <div class=\"field\">\n        <label>Password ${password ? '' : '- must not be empty'}</label>\n        <input type=\"password\" value.bind=\"password\">\n      </div>\n      <div class=\"field\">\n        <label>Repeat Password ${repeatPassword !== password ? '- Passwords do not match' : ''}</label>\n        <input type=\"password\" value.bind=\"repeatPassword\">\n      </div>\n    </div>\n    <div class=\"ui grid\">\n      <div class=\"four column row\">\n        <div class=\"left floated column\">\n          <button class=\"ui ${password === repeatPassword && email && firstName && lastName ? 'blue' : 'red'} submit button\">Submit</button>\n        </div>\n        <div class=\"right center aligned floated column\">\n          <a href=\"#/login\">Have an account? Log in here</a>\n        </div>\n      </div>\n    </div>\n  </form>\n</template>\n"; });
 define('text!viewmodels/tweet/tweet.html', ['module'], function(module) { module.exports = "<template>\n\n  <form submit.trigger=\"makeTweet()\" class=\"ui form segment\">\n\n    <h3 class='ui dividing header'> Make a Tweet </h3>\n    <div class=\"grouped inline fields\">\n      <div class=\"ui fluid big action input\">\n        <textarea placeholder=\"Text...\" rows=\"4\" maxlength=\"140\" value.bind=\"tweetText\"></textarea>\n        <Button class=\"ui ${tweetText ? 'blue' : 'red'} submit button\">Tweet</Button>\n      </div>\n      <div class=\"ui label ${tweetText ? 'blue' : 'red'}\">\n        <p>Text length: ${tweetText.length} / 140</p>\n      </div>\n    </div>\n  </form>\n\n</template>\n"; });
 define('text!viewmodels/tweet_timeline/tweet_timeline.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"ui container\">\n      <div style=\"height: 20px\"></div>\n      <compose view-model=\"../tweet/tweet\"></compose>\n      <div style=\"height: 50px\"></div>\n      <div class=\"ui container\">\n        <div class=\"ui segment\">\n          <h3 class=\"ui dividing header\">Global Timeline</h3>\n          <compose view-model=\"../global_timeline/global_timeline\"></compose>\n        </div>\n      </div>\n    </div>\n</template>\n"; });
-define('text!viewmodels/user_timeline/user_timeline.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"height: 20px\"></div>\n  <h3 class='ui dividing header'> Tweet Timeline for ${userName} </h3>\n  <require from=\"../../utils/date-format\"></require>\n  <div class=\"ui one link cards\">\n    <div class=\"ui card\" repeat.for=\"tweet of userTweets\">\n      <div class=\"content\">\n        <div class=\"header\">${tweet.tweeter.firstName} ${tweet.tweeter.lastName}</div>\n        <div class=\"meta\">Posted on: ${tweet.tweetDate | dateFormat}</div>\n        <div class=\"description\">${tweet.content}</div>\n        <div class=\"extra content\" style=\"visibility: ${loggedInUser._id === userTweets[0].tweeter._id ? 'visible' : 'hidden'}\">\n          <a>\n            <div class=\"right floated ui basic red button\" click.trigger=\"deleteTweet(tweet._id)\" data-tooltip=\"Delete this tweet permanently\">\n              <i class=\"trash icon\"></i>\n              Delete\n            </div>\n          </a>\n        </div>\n      </div>\n    </div>\n  </div>\n</template>\n"; });
+define('text!viewmodels/user_timeline/user_timeline.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"height: 20px\"></div>\n  <h3 class='ui dividing header'> Tweet Timeline for ${userName} </h3>\n  <require from=\"../../utils/date-format\"></require>\n    <div class=\"ui one cards\">\n      <div class=\"ui card\" repeat.for=\"tweet of userTweets\">\n        <div class=\"content\">\n          <div class=\"header\">${tweet.tweeter.firstName} ${tweet.tweeter.lastName}</div>\n          <div class=\"meta\">Tweeted: ${tweet.tweetDate | dateFormat}</div>\n          <div class=\"description\">${tweet.content}</div>\n        </div>\n        <div class=\"extra content\" style=\"visibility: ${loggedInUser._id === userTweets[0].tweeter._id ? 'visible' : 'hidden'}\">\n          <a>\n            <div class=\"right floated ui basic red button\" click.trigger=\"deleteTweet(tweet._id)\" data-tooltip=\"Delete this tweet permanently\">\n              <i class=\"trash icon\"></i>\n              Delete\n            </div>\n          </a>\n        </div>\n      </div>\n    </div>\n  </div>\n</template>\n"; });
 //# sourceMappingURL=app-bundle.js.map
