@@ -15,7 +15,6 @@ export class Signup {
   }
 
   register(e) {
-    this.showSignup = false;
     if (this.password === this.repeatPassword && this.firstName && this.lastName && this.email && this.password) {
       this.tweetService.register(this.firstName, this.lastName, this.email, this.password);
       this.tweetService.login(this.email, this.password);
