@@ -8,11 +8,11 @@ export class Login {
   password = 'secret';
 
   constructor(ts) {
-    this.tweetService = ts;
+    this.ts = ts;
   }
 
   login(e) {
     // console.log(`Trying to log in ${this.email}`);
-    this.tweetService.login(this.email, this.password);
+    this.ts.login(this.email, this.password);
   }
 }

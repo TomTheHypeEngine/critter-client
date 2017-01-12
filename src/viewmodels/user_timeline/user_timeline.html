@@ -2,12 +2,13 @@
   <div style="height: 20px"></div>
   <h3 class='ui dividing header'> Tweet Timeline for ${userName} </h3>
   <require from="../../utils/date-format"></require>
-  <div class="ui one link cards">
-    <div class="ui card" repeat.for="tweet of userTweets">
-      <div class="content">
-        <div class="header">${tweet.tweeter.firstName} ${tweet.tweeter.lastName}</div>
-        <div class="meta">Posted on: ${tweet.tweetDate | dateFormat}</div>
-        <div class="description">${tweet.content}</div>
+    <div class="ui one cards">
+      <div class="ui card" repeat.for="tweet of userTweets">
+        <div class="content">
+          <div class="header">${tweet.tweeter.firstName} ${tweet.tweeter.lastName}</div>
+          <div class="meta">Tweeted: ${tweet.tweetDate | dateFormat}</div>
+          <div class="description">${tweet.content}</div>
+        </div>
         <div class="extra content" style="visibility: ${loggedInUser._id === userTweets[0].tweeter._id ? 'visible' : 'hidden'}">
           <a>
             <div class="right floated ui basic red button" click.trigger="deleteTweet(tweet._id)" data-tooltip="Delete this tweet permanently">

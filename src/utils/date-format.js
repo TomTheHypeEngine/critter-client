@@ -2,6 +2,6 @@ import moment from 'moment';
 
 export class DateFormatValueConverter {
   toView(value) {
-    return moment(value).format('hh:mm:ss DD.MM.YYYY');
+    return moment(value).format('HH:mm:ss DD.MM.YYYY');
   }
 }

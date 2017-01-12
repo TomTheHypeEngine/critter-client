@@ -1,7 +1,8 @@
 import {inject} from 'aurelia-framework';
 import TweetService from '../../services/tweet-service';
+import {Router} from 'aurelia-router';
 
-@inject(TweetService)
+@inject(TweetService, Router)
 export class Signup {
 
   firstName = 'Marge';
@@ -10,15 +11,16 @@ export class Signup {
   password = 'secret';
   repeatPassword = 'secret';
 
-  constructor(ts) {
-    this.tweetService = ts;
+  constructor(ts, router) {
+    this.ts = ts;
+    this.router = router;
   }
 
   register(e) {
-    this.showSignup = false;
     if (this.password === this.repeatPassword && this.firstName && this.lastName && this.email && this.password) {
-      this.tweetService.register(this.firstName, this.lastName, this.email, this.password);
-      this.tweetService.login(this.email, this.password);
+      this.ts.register(this.firstName, this.lastName, this.email, this.password);
+      this.ts.login(this.email, this.password);
+      this.router.navigateToRoute('login');
     }
   }
 }

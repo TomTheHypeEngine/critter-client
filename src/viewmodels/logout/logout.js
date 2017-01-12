@@ -7,12 +7,12 @@ import {ChangeRouteAfterLogout} from '../../services/messages'
 export class Logout {
 
   constructor(tweetService, ea) {
-    this.tweetService = tweetService;
+    this.ts = tweetService;
     this.ea = ea;
   }
 
   logout() {
-    this.tweetService.logout();
+    this.ts.logout();
   }
 }
 

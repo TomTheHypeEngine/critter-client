@@ -1,7 +1,27 @@
 <template>
   <div style="height: 20px"></div>
-  <h3 class='ui dividing header'> Hi ${userName}, this is your Dasboard </h3>
+  <h2 class='ui dividing header'> Hi ${userName}, this is your Dasboard </h2>
   <require from="../../utils/date-format"></require>
+  <div class="ui one cards" style="visibility: ${loggedInUser.admin ? 'visible' : 'hidden; display: none' }; ">
+    <div class="card">
+      <div class="content">
+        <div class="header">You are logged in as an administrator</div>
+        <div class="description">Here you have access to the admin tools</div>
+      </div>
+      <div class="extra content">
+        <div class="ui basic blue button" click.trigger="goToAdminUserManagement()" data-tooltip="Manage Registered Users">
+          <i class="users icon"></i>
+          User Management
+        </div>
+        <div class="ui basic blue button" click.trigger="goToAdminTweetManagement()" data-tooltip="Manage all Tweets">
+          <i class="comment icon"></i>
+            Tweet Management
+          </i>
+        </div>
+      </div>
+    </div>
+    <div style="height: 20px"></div>
+  </div>
   <compose view-model="../tweet/tweet"></compose>
   <div style="height: 20px"></div>
   <div class="ui container">
@@ -11,15 +31,15 @@
         <div class="ui card" repeat.for="tweet of userTweets">
           <div class="content">
             <div class="header">${tweet.tweeter.firstName} ${tweet.tweeter.lastName}</div>
-            <div class="meta">Posted on: ${tweet.tweetDate | dateFormat}</div>
+            <div class="meta">Tweeted: ${tweet.tweetDate | dateFormat}</div>
             <div class="description">${tweet.content}</div>
-            <div class="extra content" style="visibility:
-              ${loggedInUser._id === userTweets[0].tweeter._id ? 'visible' : 'hidden'}">
-              <a><div class="right floated ui basic red button"
-                      click.trigger="deleteTweet(tweet._id)" data-tooltip="Delete this tweet permanently">
-                  <i class="trash icon"></i>
-                  Delete
-                </div></a>
+          </div>
+          <div class="extra content" style="visibility:
+              ${loggedInUser._id === tweet.tweeter._id ? 'visible' : 'hidden'}">
+            <div class="right floated ui basic red button"
+                    click.trigger="deleteTweet(tweet._id)" data-tooltip="Delete this tweet permanently">
+              <i class="trash icon"></i>
+              Delete
             </div>
           </div>
         </div>

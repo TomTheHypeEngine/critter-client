@@ -61,15 +61,13 @@ export default class TweetService {
     this.ac.post('/api/tweets', tweet).then(res => {
       const returnedTweets = res.content;
       this.tweets.push(returnedTweets);
-      console.log('Tweet created with tweetText ' + content);
       this.getTweets(); //Get all tweets again after posting a new one
     });
   }
 
   deleteTweet(id) {
     this.ac.delete('/api/tweets/' + id).then(res => {
-      console.log('Tweet deleted');
-      this.getUserTweets(this.loggedInUser._id);
+      this.getTweets();
     });
   }
 
@@ -85,6 +83,20 @@ export default class TweetService {
       password: password
     };
     this.ac.post('/api/users', newUser);
+  }
+
+  deleteUser(id) {
+    if (this.loggedInUser.admin) {
+      this.ac.delete('/api/users/' + id).then(() => {
+        this.getUsers();
+      });
+    }
+  }
+
+  deleteUserTweets(id) {
+    if (this.loggedInUser.admin) {
+      this.ac.delete('/api/users/' + id + '/tweets');
+    }
   }
 
   login(email, password) {

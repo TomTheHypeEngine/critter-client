@@ -7,12 +7,12 @@ export class Login {
   tweetText = '';
 
   constructor(ts) {
-    this.tweetService = ts;
+    this.ts = ts;
   }
 
   makeTweet() {
     if (this.tweetText !== '') {
-      this.tweetService.tweet(this.tweetText);
+      this.ts.tweet(this.tweetText);
       this.tweetText = '';
     } else {
       //TODO notify error that empty tweet is not allowed
