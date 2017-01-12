@@ -85,6 +85,20 @@ export default class TweetService {
     this.ac.post('/api/users', newUser);
   }
 
+  deleteUser(id) {
+    if (this.loggedInUser.admin) {
+      this.ac.delete('/api/users/' + id).then(() => {
+        this.getUsers();
+      });
+    }
+  }
+
+  deleteUserTweets(id) {
+    if (this.loggedInUser.admin) {
+      this.ac.delete('/api/users/' + id + '/tweets');
+    }
+  }
+
   login(email, password) {
     const user = {
       email: email,

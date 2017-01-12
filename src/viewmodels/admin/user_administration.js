@@ -24,13 +24,16 @@ export class UserAdministration {
 
   updatePassword(user, pw) {
     console.log(user);
+    user.newPassword = '';
   }
 
   deleteUser(id) {
+    this.ts.deleteUser(id);
     //todo
   }
 
   deleteUserTweets(id) {
+    this.ts.deleteUserTweets(id);
     //todo
   }
 }
