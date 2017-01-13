@@ -1,7 +1,7 @@
 import {inject} from 'aurelia-framework';
 import Fixtures from './fixtures';
-import {LoginStatus, UserUpdate, TimelineUpdate,
-  ChangeRouteAfterLogout, UserTimelineLoaded} from './messages';
+import {LoginStatus, UserUpdate, TimelineUpdate, UserFollowersLoaded,
+  UserTimelineLoaded} from './messages';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import AsyncHttpClient from './async-http-client';
 
@@ -31,6 +31,30 @@ export default class TweetService {
     });
   }
 
+
+  getUserWithFollowersPopulated(id) {
+    this.ac.get('/api/users/' + id + '/follow').then(res => {
+      let userWithFollowers = res.content;
+      this.ea.publish(new UserFollowersLoaded(userWithFollowers));
+    });
+  }
+
+  followUser(id, unfollowerId) {
+    this.ac.post('/api/users/' + id + '/follow', this.loggedInUser._id).then(res => {
+      if (res.statusCode === 200) {
+        this.getUserWithFollowersPopulated(unfollowerId);
+      }
+    });
+  }
+
+  unfollowUser(id, unfollowerId) {
+    this.ac.post('/api/users/' + id + '/unfollow', unfollowerId).then(res => {
+      if (res.statusCode === 200) {
+        this.getUserWithFollowersPopulated(unfollowerId);
+      }
+    });
+  }
+
   getUserTweets(id) {
     this.ac.get('/api/users/' + id + '/tweets').then(res => {
       this.ea.publish(new UserTimelineLoaded(res.content));
@@ -41,6 +65,12 @@ export default class TweetService {
     this.ac.post('/api/users/' + user._id, user).then(res => {
       this.getUsers();
       this.loggedInUser = user;
+    });
+  }
+
+  resetUserPassword(user) {
+    this.ac.post('/api/users/' + user._id + '/password', user.newPassword).then(res =>{
+      this.getUsers();
     });
   }
 

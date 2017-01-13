@@ -5,11 +5,11 @@ import {Router} from 'aurelia-router';
 @inject(TweetService, Router)
 export class Signup {
 
-  firstName = 'Marge';
-  lastName = 'Simpson';
-  email = 'marge@simpson.com';
-  password = 'secret';
-  repeatPassword = 'secret';
+  firstName = '';
+  lastName = '';
+  email = '';
+  password = '';
+  repeatPassword = '';
 
   constructor(ts, router) {
     this.ts = ts;

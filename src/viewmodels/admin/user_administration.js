@@ -25,10 +25,10 @@ export class UserAdministration {
     this.ts.getUsers();
   }
 
-  updatePassword(user, pw) {
+  updatePassword(user) {
     this.ds.open({ viewModel: Prompt, model: 'Reset users password?'}).then(response => {
       if (!response.wasCancelled) {
-        //TODO
+        this.ts.resetUserPassword(user);
         user.newPassword = '';
       } else {
         console.log('Cancelled');
