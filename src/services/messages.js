@@ -21,3 +21,10 @@ export class UserTimelineLoaded {
     this.data = data;
   }
 }
+
+export class UserFollowersLoaded {
+  constructor(userWithFollowers) {
+    this.userWithFollowers = userWithFollowers;
+  }
+}
+

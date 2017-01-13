@@ -1,0 +1,26 @@
+<template>
+  <div style="height: 20px"></div>
+  <h2 class='ui dividing header'>See the users you are following</h2>
+  <div class="ui segment">
+    <div class="ui cards">
+      <div class="card" repeat.for="followedUser of user.followedUsers">
+        <div class="content">
+          <div class="header">${followedUser.firstName} ${followedUser.lastName}</div>
+          <div class="content">You follow this user</div>
+        </div>
+        <div class="extra content">
+          <div class="ui left floated basic blue button" click.trigger="goToUsersTimeline(followedUser._id)"
+               data-tooltip="Go to the timeline of${followedUser.firstName}">
+            <i class="list icon"></i>
+            Timeline
+          </div>
+          <div class="ui right floated basic blue button"
+               click.trigger="unfollowUser(followedUser._id)" data-tooltip="Stop following this user">
+            <i class="empty heart icon"></i>
+            Unfollow
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
