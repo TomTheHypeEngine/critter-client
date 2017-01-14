@@ -5,13 +5,13 @@
     <div class="ui" style="${loggedInUser._id === id ? 'display: none' : ''}">
       <div class="ui floated basic blue button" click.trigger="followUser(id)"
            data-tooltip="Follow this user"
-           style="display: ${loggedInUser.followedUsers.indexOf(id) != -1 ? '' : 'none'}">
+           style="display: ${idInFollowed ? 'none' : ''}">
         <i class="heart icon"></i>
         Follow
       </div>
       <div class="ui floated basic blue button" click.trigger="unfollowUser(id)"
            data-tooltip="Follow this user"
-           style="display: ${loggedInUser.followedUsers.indexOf(id) != -1 ? 'none' : ''}">
+           style="display: ${idInFollowed ? '' : 'none'}">
         <i class="empty heart icon"></i>
         Unfollow
       </div>
