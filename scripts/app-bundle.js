@@ -154,40 +154,6 @@ define('main',['exports', './environment'], function (exports, _environment) {
     });
   }
 });
-define('utils/date-format',['exports', 'moment'], function (exports, _moment) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.DateFormatValueConverter = undefined;
-
-  var _moment2 = _interopRequireDefault(_moment);
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-      default: obj
-    };
-  }
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var DateFormatValueConverter = exports.DateFormatValueConverter = function () {
-    function DateFormatValueConverter() {
-      _classCallCheck(this, DateFormatValueConverter);
-    }
-
-    DateFormatValueConverter.prototype.toView = function toView(value) {
-      return (0, _moment2.default)(value).format('HH:mm:ss DD.MM.YYYY');
-    };
-
-    return DateFormatValueConverter;
-  }();
-});
 define('resources/index',["exports"], function (exports) {
   "use strict";
 
@@ -558,6 +524,40 @@ define('services/tweet-service',['exports', 'aurelia-framework', './fixtures', '
   }()) || _class);
   exports.default = TweetService;
 });
+define('utils/date-format',['exports', 'moment'], function (exports, _moment) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.DateFormatValueConverter = undefined;
+
+  var _moment2 = _interopRequireDefault(_moment);
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : {
+      default: obj
+    };
+  }
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var DateFormatValueConverter = exports.DateFormatValueConverter = function () {
+    function DateFormatValueConverter() {
+      _classCallCheck(this, DateFormatValueConverter);
+    }
+
+    DateFormatValueConverter.prototype.toView = function toView(value) {
+      return (0, _moment2.default)(value).format('HH:mm:ss DD.MM.YYYY');
+    };
+
+    return DateFormatValueConverter;
+  }();
+});
 define('utils/prompt/prompt',['exports', 'aurelia-framework', 'aurelia-dialog'], function (exports, _aureliaFramework, _aureliaDialog) {
   'use strict';
 
@@ -926,7 +926,7 @@ define('viewmodels/followed_users/followed_users',['exports', 'aurelia-framework
 
       this.ds.open({ viewModel: _prompt.Prompt, model: 'Really unfollow this user?' }).then(function (response) {
         if (!response.wasCancelled) {
-          _this2.ts.unfollowUser(id, _this2.loggedInUser._id);
+          _this2.ts.unfollowUser(id, _this2.user._id);
         } else {
           console.log('Cancelled');
         }
@@ -1213,6 +1213,8 @@ define('viewmodels/user_timeline/user_timeline',['exports', 'aurelia-framework',
       this.id = '';
       this.userTweets = [];
       this.loggedInUser = null;
+      this.followedUsers = [];
+      this.idInFollowed = false;
 
       this.ts = ts;
       this.ea = ea;
@@ -1223,22 +1225,37 @@ define('viewmodels/user_timeline/user_timeline',['exports', 'aurelia-framework',
         _this.userTweets = res.data;
         if (_this.userTweets.length) {
           _this.userName = _this.userTweets[0].tweeter.firstName + ' ' + _this.userTweets[0].tweeter.lastName;
+          _this.loggedInUser = _this.ts.loggedInUser;
         }
+      });
+      ea.subscribe(_messages.UserFollowersLoaded, function (res) {
+        _this.followedUsers = res.userWithFollowers.followedUsers;
+        _this.idInFollowed = _this.idInUserFollowed(_this.id);
       });
     }
 
     UserTimeline.prototype.activate = function activate(params) {
       this.id = params.id;
       this.ts.getUserTweets(params.id);
-      console.log(this.loggedInUser);
+      this.ts.getUserWithFollowersPopulated(this.loggedInUser._id);
+    };
+
+    UserTimeline.prototype.idInUserFollowed = function idInUserFollowed(id) {
+      var _this2 = this;
+
+      var result = this.followedUsers.find(function (user) {
+        return user._id === _this2.id;
+      });
+      console.log(result);
+      return result !== undefined;
     };
 
     UserTimeline.prototype.deleteTweet = function deleteTweet(id) {
-      var _this2 = this;
+      var _this3 = this;
 
       this.ds.open({ viewModel: _prompt.Prompt, model: 'Really delete this tweet?' }).then(function (response) {
         if (!response.wasCancelled) {
-          _this2.ts.deleteTweet(id);
+          _this3.ts.deleteTweet(id);
         } else {
           console.log('Cancelled');
         }
@@ -1246,13 +1263,13 @@ define('viewmodels/user_timeline/user_timeline',['exports', 'aurelia-framework',
     };
 
     UserTimeline.prototype.followUser = function followUser(id) {
-      var _this3 = this;
+      var _this4 = this;
 
       this.ds.open({ viewModel: _prompt.Prompt, model: 'Really follow this user?' }).then(function (response) {
         if (!response.wasCancelled) {
-          _this3.ts.followUser(id, _this3.loggedInUser._id);
-          _this3.loggedInUser.followedUsers.push(id);
-          _this3.router.navigateToRoute('followed_users');
+          console.log(_this4.loggedInUser);
+          _this4.ts.followUser(id, _this4.loggedInUser._id);
+          _this4.ts.getUserWithFollowersPopulated(_this4.loggedInUser._id);
         } else {
           console.log('Cancelled');
         }
@@ -1260,13 +1277,12 @@ define('viewmodels/user_timeline/user_timeline',['exports', 'aurelia-framework',
     };
 
     UserTimeline.prototype.unfollowUser = function unfollowUser(id) {
-      var _this4 = this;
+      var _this5 = this;
 
       this.ds.open({ viewModel: _prompt.Prompt, model: 'Really unfollow this user?' }).then(function (response) {
         if (!response.wasCancelled) {
-          _this4.ts.unfollowUser(id, _this4.loggedInUser._id);
-          _this4.loggedInUser.followedUsers.pop(id);
-          _this4.router.navigateToRoute('followed_users');
+          _this5.ts.unfollowUser(id, _this5.loggedInUser._id);
+          _this5.ts.getUserWithFollowersPopulated(_this5.loggedInUser._id);
         } else {
           console.log('Cancelled');
         }
@@ -2007,5 +2023,5 @@ define('text!viewmodels/logout/logout.html', ['module'], function(module) { modu
 define('text!viewmodels/signup/signup.html', ['module'], function(module) { module.exports = "<template>\n  <form submit.delegate=\"register($event)\" class=\"ui segment form\">\n    <h3 class=\"ui header\">Register a new Account</h3>\n    <div class=\"two fields\">\n      <div class=\"field\">\n        <label>First Name ${firstName ? '' : '- must not be empty'}</label>\n        <input placeholder=\"First Name\" type=\"text\" value.bind=\"firstName\">\n      </div>\n      <div class=\"field\">\n        <label>Last Name ${lastName ? '' : '- must not be empty'}</label>\n        <input placeholder=\"Last Name\" type=\"text\" value.bind=\"lastName\">\n      </div>\n    </div>\n    <div class=\"field\">\n      <label>Email ${email ? '' : '- must not be empty'}</label>\n      <input placeholder=\"Email\" type=\"text\" value.bind=\"email\">\n    </div>\n    <div class=\"two fields\">\n      <div class=\"field\">\n        <label>Password ${password ? '' : '- must not be empty'}</label>\n        <input type=\"password\" value.bind=\"password\">\n      </div>\n      <div class=\"field\">\n        <label>Repeat Password ${repeatPassword !== password ? '- Passwords do not match' : ''}</label>\n        <input type=\"password\" value.bind=\"repeatPassword\">\n      </div>\n    </div>\n    <div class=\"ui grid\">\n      <div class=\"four column row\">\n        <div class=\"left floated column\">\n          <button class=\"ui ${password === repeatPassword && email && firstName && lastName ? 'blue' : 'red'} submit button\">Submit</button>\n        </div>\n        <div class=\"right center aligned floated column\">\n          <a href=\"#/login\">Have an account? Log in here</a>\n        </div>\n      </div>\n    </div>\n  </form>\n</template>\n"; });
 define('text!viewmodels/tweet/tweet.html', ['module'], function(module) { module.exports = "<template>\n\n  <form submit.trigger=\"makeTweet()\" class=\"ui form segment\">\n\n    <h3 class='ui dividing header'> Make a Tweet </h3>\n    <div class=\"grouped inline fields\">\n      <div class=\"ui fluid big action input\">\n        <textarea placeholder=\"Text...\" rows=\"4\" maxlength=\"140\" value.bind=\"tweetText\"></textarea>\n        <Button class=\"ui ${tweetText ? 'blue' : 'red'} submit button\">Tweet</Button>\n      </div>\n      <div class=\"ui label ${tweetText ? 'blue' : 'red'}\">\n        <p>Text length: ${tweetText.length} / 140</p>\n      </div>\n    </div>\n  </form>\n\n</template>\n"; });
 define('text!viewmodels/tweet_timeline/tweet_timeline.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"ui container\">\n      <div style=\"height: 20px\"></div>\n      <compose view-model=\"../tweet/tweet\"></compose>\n      <div style=\"height: 50px\"></div>\n      <div class=\"ui container\">\n        <div class=\"ui segment\">\n          <h3 class=\"ui dividing header\">Global Timeline</h3>\n          <compose view-model=\"../global_timeline/global_timeline\"></compose>\n        </div>\n      </div>\n    </div>\n</template>\n"; });
-define('text!viewmodels/user_timeline/user_timeline.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"height: 20px\"></div>\n  <div class=\"ui segment\">\n    <h3 class='ui dividing header'> Tweet Timeline for ${userName} </h3>\n    <div class=\"ui\" style=\"${loggedInUser._id === id ? 'display: none' : ''}\">\n      <div class=\"ui floated basic blue button\" click.trigger=\"followUser(id)\"\n           data-tooltip=\"Follow this user\"\n           style=\"display: ${loggedInUser.followedUsers.indexOf(id) != -1 ? '' : 'none'}\">\n        <i class=\"heart icon\"></i>\n        Follow\n      </div>\n      <div class=\"ui floated basic blue button\" click.trigger=\"unfollowUser(id)\"\n           data-tooltip=\"Follow this user\"\n           style=\"display: ${loggedInUser.followedUsers.indexOf(id) != -1 ? 'none' : ''}\">\n        <i class=\"empty heart icon\"></i>\n        Unfollow\n      </div>\n      <div style=\"height: 10px\"></div>\n    <require from=\"../../utils/date-format\"></require>\n      <div class=\"ui one cards\">\n        <div class=\"ui card\" repeat.for=\"tweet of userTweets\">\n          <div class=\"content\">\n            <div class=\"header\">${tweet.tweeter.firstName} ${tweet.tweeter.lastName}</div>\n            <div class=\"meta\">Tweeted: ${tweet.tweetDate | dateFormat}</div>\n            <div class=\"description\">${tweet.content}</div>\n          </div>\n          <div class=\"extra content\" style=\"visibility: ${loggedInUser._id === userTweets[0].tweeter._id ? 'visible' : 'hidden'}\">\n            <a>\n              <div class=\"right floated ui basic red button\" click.trigger=\"deleteTweet(tweet._id)\"\n                   data-tooltip=\"Delete this tweet permanently\">\n                <i class=\"trash icon\"></i>\n                Delete\n              </div>\n            </a>\n          </div>\n        </div>\n      </div>\n    </div>\n  </div>\n</template>\n"; });
+define('text!viewmodels/user_timeline/user_timeline.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"height: 20px\"></div>\n  <div class=\"ui segment\">\n    <h3 class='ui dividing header'> Tweet Timeline for ${userName} </h3>\n    <div class=\"ui\" style=\"${loggedInUser._id === id ? 'display: none' : ''}\">\n      <div class=\"ui floated basic blue button\" click.trigger=\"followUser(id)\"\n           data-tooltip=\"Follow this user\"\n           style=\"display: ${idInFollowed ? 'none' : ''}\">\n        <i class=\"heart icon\"></i>\n        Follow\n      </div>\n      <div class=\"ui floated basic blue button\" click.trigger=\"unfollowUser(id)\"\n           data-tooltip=\"Follow this user\"\n           style=\"display: ${idInFollowed ? '' : 'none'}\">\n        <i class=\"empty heart icon\"></i>\n        Unfollow\n      </div>\n      <div style=\"height: 10px\"></div>\n    <require from=\"../../utils/date-format\"></require>\n      <div class=\"ui one cards\">\n        <div class=\"ui card\" repeat.for=\"tweet of userTweets\">\n          <div class=\"content\">\n            <div class=\"header\">${tweet.tweeter.firstName} ${tweet.tweeter.lastName}</div>\n            <div class=\"meta\">Tweeted: ${tweet.tweetDate | dateFormat}</div>\n            <div class=\"description\">${tweet.content}</div>\n          </div>\n          <div class=\"extra content\" style=\"visibility: ${loggedInUser._id === userTweets[0].tweeter._id ? 'visible' : 'hidden'}\">\n            <a>\n              <div class=\"right floated ui basic red button\" click.trigger=\"deleteTweet(tweet._id)\"\n                   data-tooltip=\"Delete this tweet permanently\">\n                <i class=\"trash icon\"></i>\n                Delete\n              </div>\n            </a>\n          </div>\n        </div>\n      </div>\n    </div>\n  </div>\n</template>\n"; });
 //# sourceMappingURL=app-bundle.js.map
