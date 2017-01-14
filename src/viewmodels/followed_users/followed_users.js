@@ -31,7 +31,7 @@ export class FollowedUsers {
   unfollowUser(id) {
     this.ds.open({ viewModel: Prompt, model: 'Really unfollow this user?'}).then(response => {
       if (!response.wasCancelled) {
-        this.ts.unfollowUser(id, this.loggedInUser._id);
+        this.ts.unfollowUser(id, this.user._id);
       } else {
         console.log('Cancelled');
       }
