@@ -12,17 +12,17 @@ Development was done with [JetBrains Webstorm](https://www.jetbrains.com/webstor
 ## Requirements and Setup
 NodeJs and npm must be installed on your PC. With npm you can install the aurelia cli tools to start development 
 
-```npm install aurelia-cli -g```
+`npm install aurelia-cli -g`
 
 Clone this repository and 
 
-```npm install```
+`npm install`
 
 from the project root directory.
 
 Start and run the aurelia app with
 
-```au run --watch```
+`au run --watch`
 
 In order to actually register, log in and use features of the app you will also need my api found 
 [here](https://github.com/TomTheHypeEngine/tweet-api)
@@ -45,7 +45,7 @@ There is also a functionality for administrators (users with "admin": true attri
 * Completely remove one user from Critter
 
 ## Developer
-Thomas Hettrich aka [TomTheHypeEngine](https://github.com/TomTheHypeEngine)
+Thomas Hettrich aka [TomTheHypeEngine](https://github.com/TomTheHypeEngine) Student ID: 2830555
 
 ## Acknowledgment
 This project was created as an assignment for the course Building Modern Web Applications 
