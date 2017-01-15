@@ -9,7 +9,7 @@ Aurelia uses the [NodeJS](www.nodejs.org) Java Script Runtime.
 
 Development was done with [JetBrains Webstorm](https://www.jetbrains.com/webstorm/)
 
-## Requrements
+## Requirements and Setup
 NodeJs and npm must be installed on your PC. With npm you can install the aurelia cli tools to start development 
 
 ```npm install aurelia-cli -g```
