@@ -1,5 +1,5 @@
 # Critter 
-A simple Twitter Clone
+A simple Twitter Clone - available @ https://tomthehypeengine.github.io/critter-client/
 
 ## Development tools
 Critter is developed with [Aurelia](www.aurelia.io), a next generation JavaScript framework that 
