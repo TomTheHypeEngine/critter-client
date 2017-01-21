@@ -2,10 +2,10 @@
 A simple Twitter Clone - available @ https://tomthehypeengine.github.io/critter-client/
 
 ## Development tools
-Critter is developed with [Aurelia](www.aurelia.io), a next generation JavaScript framework that 
+Critter is developed with [Aurelia](https://www.aurelia.io), a next generation JavaScript framework that 
 uses the latest JavaScript standards like ECMAScript 2016. 
 
-Aurelia uses the [NodeJS](www.nodejs.org) Java Script Runtime.
+Aurelia uses the [NodeJS](https://www.nodejs.org) Java Script Runtime.
 
 Development was done with [JetBrains Webstorm](https://www.jetbrains.com/webstorm/)
 
